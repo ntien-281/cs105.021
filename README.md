@@ -5,7 +5,7 @@
 |Tên|MSSV|
 |---|---|
 |Lý Văn Nhật Tiến|21521525|
-|Nguyễn Văn Kiệt||
+|Nguyễn Văn Kiệt|21521037|
 
 ### Công nghệ sử dụng
 - React
