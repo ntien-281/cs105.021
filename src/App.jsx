@@ -1,6 +1,6 @@
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useRef } from 'react';
-import { PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 
 
 const Cube = () => {
@@ -18,7 +18,8 @@ const Cube = () => {
   return (
     <mesh ref={meshRef}>
       <PerspectiveCamera />
-      <boxGeometry args={[2,2,2]} />
+      <OrbitControls/>
+      <boxGeometry args={[3,3,3]} />
       <meshStandardMaterial color="blue" />
     </mesh>
   );
