@@ -19,7 +19,7 @@ function App() {
   return (
     <div id="canvas-container">
       <KeyboardControls map={keyMapping}>
-        <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [5, 15, 20] }}>
+        <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [5, 15, 10] }}>
           <OrbitControls />
           <PerspectiveCamera />
           <ambientLight intensity={0.6} />
@@ -34,7 +34,7 @@ function App() {
               {/* INFO: Character */}
               <CharacterController />
     
-              <Husk castShadow position={[5, 0, -5]} />
+              <Husk castShadow position={[5, 1, -5]} />
             </Physics>
           </Suspense>
         </Canvas>
