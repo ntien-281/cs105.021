@@ -1,6 +1,6 @@
-#root {
+#canvas-container {
     width: 100vw;
     height: 100vh;
-    background-color: aquamarine;
-    background-image: linear-gradient(0deg,#d9afd9 0%,#97d9e9 100%);
+    background-color: linear-gradient(45deg,#ef745c 0%, #34073d 100%);
+    background-image: linear-gradient(45deg,#ef745c 0%, #34073d 100%);
 }
