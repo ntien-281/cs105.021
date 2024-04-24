@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
 import Husk from './loaders/Husk/Husk'
 import LevelStage from './components/LevelStage/LevelStage';
+import Knight2 from './loaders/HollowKnight/Knight2';
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <LevelStage />
 
         <Husk castShadow />
+        <Knight2 position= {[10,0,0]}/>
       </Canvas>
     </div>
   )
