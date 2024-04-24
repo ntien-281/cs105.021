@@ -4,18 +4,83 @@ Command: npx gltfjsx@6.2.16 Knight2.glb --transform
 Files: Knight2.glb [37.54MB] > C:\Users\vanki\OneDrive\Desktop\cs105.021\src\loaders\HollowKnight\Knight2-transformed.glb [1.3MB] (97%)
 */
 
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
 
 export default function Knight2(props) {
   const group = useRef()
   const { nodes, materials, animations } = useGLTF('./models/HollowKnight/Knight2-transformed.glb')
-  const { actions, mixer } = useAnimations(animations, group)
-  console.log(actions);
+  const { actions, names, mixer } = useAnimations(animations, group)
+
+  const [isWalking, setIsWalking] = useState(false);
+  // console.log(actions);
+  
+  useFrame(() => {
+    if (isWalking) {
+      actions.walk.play();
+    }
+    else {
+      actions.walk.stop();
+    }
+  })
+
+  const handleKeyPress = (event) => {
+    switch (event.keyCode) {
+      case 87: //w
+        setIsWalking(true);
+        
+        break;
+      case 65: //a
+        setIsWalking(true);
+
+        break
+      case 83: //s
+        setIsWalking(true);
+        
+        break;
+      case 68: // d
+        setIsWalking(true);
+        
+        break;
+    }
+  }
+  const handleKeyUp = (event) => {
+    switch (event.keyCode) {
+      case 87: //w
+        setIsWalking(false);
+        
+        break;
+      case 65: //a
+        setIsWalking(false);
+
+        break
+      case 83: //s
+        setIsWalking(false);
+        
+        break;
+      case 68: // d
+        setIsWalking(false);
+        
+        break;
+    }
+  }
 
   useEffect(() => {
-    actions?.walk.play();
-  }, [actions, mixer]);
+    document.addEventListener("keydown", handleKeyPress);
+    document.addEventListener("keyup", handleKeyUp);
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+      document.removeEventListener("keyup", handleKeyUp);
+    };
+  });
+
+  useEffect(() => {
+    if (isWalking) {
+      actions?.walk.play();
+    }
+  }, [actions, mixer, isWalking]);
+
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">

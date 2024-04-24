@@ -1,12 +1,15 @@
+import { Box } from "@react-three/drei";
+import { RigidBody } from "@react-three/rapier";
 
 const LevelStage = () => {
   return (
     <>
       {/* Lower level */}
-      <mesh position={[0, -4, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[1000, 1000]} />
-        <meshBasicMaterial color={"#f3e5ab"} toneMapped={false} />
-      </mesh>
+      <RigidBody type="fixed" position={[0, 0, 0]}>
+        <Box args={[20, 1, 20]}>
+          <meshStandardMaterial color={"#888"}  />
+        </Box>
+      </RigidBody>
     </>
   );
 };
