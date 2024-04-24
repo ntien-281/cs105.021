@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import Husk from './loaders/husk/Husk'
+import Husk from './loaders/Husk/Husk'
 import LevelStage from './components/LevelStage/LevelStage';
 import Knight2 from './loaders/HollowKnight/Knight2';
 

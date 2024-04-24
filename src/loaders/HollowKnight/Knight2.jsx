@@ -4,18 +4,18 @@ Command: npx gltfjsx@6.2.16 Knight2.glb --transform
 Files: Knight2.glb [37.54MB] > C:\Users\vanki\OneDrive\Desktop\cs105.021\src\loaders\HollowKnight\Knight2-transformed.glb [1.3MB] (97%)
 */
 
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 
 export default function Knight2(props) {
   const group = useRef()
   const { nodes, materials, animations } = useGLTF('./models/HollowKnight/Knight2-transformed.glb')
-  const { actions, names } = useAnimations(animations, group)
-  console.log(names)
+  const { actions, mixer } = useAnimations(animations, group)
+  console.log(actions);
 
   useEffect(() => {
-    actions[names[0]].reset().fadeIn(0.5).play();
-  }, []);
+    actions?.walk.play();
+  }, [actions, mixer]);
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">
