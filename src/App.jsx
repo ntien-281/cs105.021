@@ -18,27 +18,21 @@ function App() {
 
   return (
     <div id="canvas-container">
-      <KeyboardControls map={keyMapping}>
-        <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [5, 15, 10] }}>
-          <OrbitControls />
-          <PerspectiveCamera />
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[5, 5, 5]} intensity={2} castShadow color={"#fffff0"} />
-  
-  
-          <Suspense>
-            <Physics debug>
-              {/* INFO: Floor */}
-              <LevelStage />
-    
-              {/* INFO: Character */}
-              <CharacterController />
-    
-              <Husk castShadow position={[5, 1, -5]} />
-            </Physics>
-          </Suspense>
-        </Canvas>
-      </KeyboardControls>
+      <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [5, 15, 10] }}>
+        <OrbitControls />
+        <PerspectiveCamera />
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[5, 5, 5]} intensity={2} castShadow color={"#fffff0"} />
+
+
+        <Suspense>
+          <Physics debug>
+            
+          {/* TODO: create grid box 3d & right UI */}
+            
+          </Physics>
+        </Suspense>
+      </Canvas>
     </div>
   )
 }

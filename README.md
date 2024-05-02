@@ -1,6 +1,6 @@
 # Đồ án cuối kỳ CS105.O21
 > GVHD: ThS. Cáp Phạm Đình Thăng
-## Hollow Knight 3D
+## Tetris 3D
 ### Nhóm
 |Tên|MSSV|
 |---|---|
@@ -13,10 +13,6 @@
 - React-three/fiber
 
 ### Hướng dẫn chạy
-Với `npm`:
-```
-npm i
-npm run dev
 ```
 Với `yarn`:
 ```
