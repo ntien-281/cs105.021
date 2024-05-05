@@ -4,3 +4,36 @@
     background-color: linear-gradient(45deg,#ef745c 0%, #34073d 100%);
     background-image: linear-gradient(45deg,#ef745c 0%, #34073d 100%);
 }
+.instructions-label {
+    white-space: nowrap;
+    color: #ababab;
+    padding: 10px;
+
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+        margin: 10px 0;
+        
+        li {
+            margin: 10px 0;
+
+            &>strong {
+                font-weight: bold;
+                color: #ddd;
+            }
+
+            ul {
+                margin-top: 5px;
+                padding-left: 20px;
+
+                li {
+                    font-size: 0.95em;
+                }
+            }
+        }
+    }
+
+    span {
+        font-size: 1.1em;
+    }
+}
