@@ -3,11 +3,27 @@
     height: 100vh;
     background-color: linear-gradient(45deg,#ef745c 0%, #34073d 100%);
     background-image: linear-gradient(45deg,#ef745c 0%, #34073d 100%);
+    position: absolute;
+    z-index: 0;
+}
+.incoming-display {
+    white-space: nowrap;
+    font-weight: bold;
+    color: #ddd;
+    position:  absolute;
+    left: 100px;
+    top: 100px;
+    bottom: 100px;
 }
 .instructions-label {
     white-space: nowrap;
     color: #ababab;
     padding: 10px;
+    position: absolute;
+    z-index: 100;
+    right: 100px;
+    bottom: 100px;
+    top: 100px;
 
     ul {
         list-style-type: none;
@@ -37,3 +53,5 @@
         font-size: 1.1em;
     }
 }
+
+/* Right UI CSS */
