@@ -2,7 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { KeyboardControls, OrbitControls, PerspectiveCamera, Html } from '@react-three/drei';
 import { Suspense, useMemo } from 'react';
 import { Physics } from '@react-three/rapier';
-import { Box } from '@react-three/drei';
+import { Box, Edges } from '@react-three/drei';
 import * as THREE from 'three';
 
 function App() {
@@ -16,7 +16,8 @@ function App() {
   const size = 6;
   const divisions = 6;
   const color = "gray"
-  const blockColor = new THREE.Color("purple");
+  const texture = useMemo(() => new THREE.TextureLoader().load('./src/assets/brick_2.jpg'), []);
+
   return (
     <div id="canvas-container">
       <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [5, 15, 10] }}>
@@ -64,11 +65,90 @@ function App() {
                   <li><strong>Hard Drop:</strong> <span>Space</span></li>
               </ul>
             </Html>
-            <group>
-              <Box position={[-1, 0, 0]} color={blockColor}/>
-              <Box position={[0, 0, 0]} color={blockColor} />
-              <Box position={[1, 0, 0]} color={blockColor} />
-              <Box position={[1, 1, 0]} color={blockColor} />
+            {/* Shape of tetrimio */}
+            {/* L-shape */}
+            <group position={[-2,-2,-2]}>
+              <Box position={[-1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[0, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 1, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+            </group>
+
+            {/* T-reverse */}
+            <group position={[-2,1,-2]}>
+              <Box position={[-1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[0, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[0, 1, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+            </group>
+            {/* Line */}
+            <group position={[-2,4,-2]}>
+              <Box position={[-1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[0, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[-2, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+            </group>
+            {/* U-shape */}
+            <group position={[-2,6,-2]}>
+              <Box position={[-1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[0, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 1, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 2, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[-1, 1, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[-1, 2, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+            </group>
+            <group position={[-2,10,-2]}>
+              <Box position={[0, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[0, 1, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 0, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
+              <Box position={[1, 1, 0]}>
+                <meshBasicMaterial attach="material" map={texture} />
+              </Box>
             </group>
           </Physics>
         </Suspense>
