@@ -8,30 +8,30 @@ const Ui = () => {
     // Left UI: incoming blocks with animation
     <>
       <div className="incoming-display">
-        <strong>Incoming blocks:</strong>
+        <strong>Các khối tiếp:</strong>
       </div>
     {/* Right UI */}
       <div className="instructions-label">
         <ul>
           <li>
-            <strong>Drag:</strong> <span>Mouse</span>
+            <strong>Camera: </strong> <span>Kéo thả chuột</span>
           </li>
           <li>
-            <strong>Rotate:</strong>
+            <strong>Xoay:</strong>
             <ul>
               <li>
-                <strong>X-axis:</strong> Q
+                <strong>X:</strong> Q
               </li>
               <li>
-                <strong>Y-axis:</strong> E
+                <strong>Y:</strong> E
               </li>
               <li>
-                <strong>Z-axis:</strong> R
+                <strong>Z:</strong> R
               </li>
             </ul>
           </li>
           <li>
-            <strong>Hard Drop:</strong> <span>Space</span>
+            <strong>Thả:</strong> <span>Space</span>
           </li>
         </ul>
       </div>

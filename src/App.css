@@ -1,11 +1,24 @@
+html {
+    font-size: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    user-select: none;
+}
+
 #canvas-container {
     width: 100vw;
     height: 100vh;
-    background-color: linear-gradient(45deg,#ef745c 0%, #34073d 100%);
-    background-image: linear-gradient(45deg,#ef745c 0%, #34073d 100%);
+    background-color: linear-gradient(45deg,#8E0E00 0%, #1F1C18 100%);
+    background-image: linear-gradient(45deg,#8E0E00 0%, #1F1C18 100%);
     position: absolute;
     z-index: 0;
 }
+/* Header */
+.header-wrapper {
+    position: absolute;
+    z-index: 100;
+    margin: 0px auto;
+}
+/* Right UI */
 .incoming-display {
     white-space: nowrap;
     font-weight: bold;
@@ -15,6 +28,7 @@
     top: 100px;
     bottom: 100px;
 }
+/* Right UI CSS */
 .instructions-label {
     white-space: nowrap;
     color: #ababab;
@@ -22,7 +36,6 @@
     position: absolute;
     z-index: 100;
     right: 100px;
-    bottom: 100px;
     top: 100px;
 
     ul {
@@ -54,4 +67,3 @@
     }
 }
 
-/* Right UI CSS */
