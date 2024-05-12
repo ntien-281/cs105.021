@@ -1,5 +1,3 @@
-// TODO Giao diện trò chơi chính, có state và xử lý state để handle gameplay
-
 import { Plane } from '@react-three/drei'
 import React from 'react'
 import { DoubleSide } from 'three'

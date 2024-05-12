@@ -1,62 +1,74 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Canvas } from '@react-three/fiber'
+import { Canvas } from "@react-three/fiber";
+import { RoundedBox } from '@react-three/drei';
 
-// Define the tetriminos blocks
-const blocks = [
-  {
-    shape: [[1, 1], [1, 1]], // Square block
-    color: 0xff0000 // Red
-  },
-  {
-    shape: [[0, 1, 0], [1, 1, 1]], // L block
-    color: 0x00ff00 // Green
-  },
-  {
-    shape: [[0, 1, 1], [1, 1, 0]], // T block
-    color: 0x0000ff // Blue
-  },
-  // Define other tetriminos blocks here...
+const box_size = 2; 
+
+// Function to generate a random position within a given range
+const getRandomPosition = (min, max) => {
+  return Math.random() * (max - min) + min;
+};
+
+// Define four groups of blocks
+const groupsOfBlocks = [
+  [
+    [1, 1, 1],
+    [1, 1, 1 + box_size],
+    [1,1 + box_size,1],
+    [1 + box_size,1,1]
+  ],
+  [
+    [1,1,1],
+    [1+box_size,1+box_size,1],
+    [1,1 + box_size,1],
+    [1 + box_size,1,1]
+  ],
+  [
+    [1,1,1],
+    [1,1,1 + box_size],
+    [1,1 + box_size,1],
+    [1,1,1+2*box_size]
+  ],
+  [
+    [1,1,1],
+    [1,1,1 + box_size],
+    [1,1 + box_size,1+box_size],
+    [1,1,1+2*box_size]
+  ],
+  [
+    [1,1,1],
+    [1,1,1 + box_size],
+    [1,1 - box_size,1+box_size],
+    [1,1,1+2*box_size],
+    [1,1-2*box_size,1+box_size]
+  ]
 ];
 
-// Function to return a random block
-const getRandomBlock = () => {
-  const randomIndex = Math.floor(Math.random() * blocks.length);
-  return blocks[randomIndex];
+// Function to generate a random group of RoundedBox elements
+const generateRandomGroup = () => {
+  const randomIndex = Math.floor(Math.random() * groupsOfBlocks.length);
+  const group = groupsOfBlocks[randomIndex];
+
+  return group.map((position, index) => (
+    <RoundedBox
+      key={index}
+      args={[box_size, box_size, box_size]}
+      position={position}
+      castShadow
+      receiveShadow
+    >
+      <meshStandardMaterial color="#00ff00" />
+    </RoundedBox>
+  ));
 };
 
-// Component to render the block in React Three Fiber
-const TetriminosBlock = ({ block }) => {
+// Component to render the canvas and random group
+const Block = () => {
+  const randomGroup = generateRandomGroup();
+
   return (
-    <group>
-      {block.shape.map((row, rowIndex) => (
-        row.map((cell, colIndex) => (
-          cell === 1 && <mesh key={`${rowIndex}-${colIndex}`} position={[colIndex, -rowIndex, 0]}>
-            <boxBufferGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial attach="material" color={block.color} />
-          </mesh>
-        ))
-      ))}
-    </group>
+      <group>{randomGroup}</group>
   );
 };
 
-TetriminosBlock.propTypes = {
-  block: PropTypes.shape({
-    shape: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
-    color: PropTypes.number.isRequired
-  }).isRequired
-};
-
-// Component to render the canvas and tetriminos block
-const getBlock = () => {
-  const randomBlock = getRandomBlock();
-
-  return (
-    <Canvas>
-      <TetriminosBlock block={randomBlock} />
-    </Canvas>
-  );
-};
-
-export default getBlock;
+export default Block;
