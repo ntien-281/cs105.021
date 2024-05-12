@@ -2,8 +2,8 @@ import { Canvas } from '@react-three/fiber'
 import { KeyboardControls, OrbitControls, PerspectiveCamera, Html } from '@react-three/drei';
 import { Suspense, useMemo } from 'react';
 import { Physics } from '@react-three/rapier';
-import { Box, Edges } from '@react-three/drei';
 import * as THREE from 'three';
+import TetrisBlock from './components/Block';
 
 function App() {
 
@@ -25,49 +25,13 @@ function App() {
         <PerspectiveCamera />
         <ambientLight intensity={0.6} />
         <directionalLight position={[5, 5, 5]} intensity={2} castShadow color={"#fffff0"} />
-
-
+        {/* <TetrisBlock/> */}
         <Suspense>
           <Physics debug>
-            
-          {/* TODO: create grid box 3d & right UI */}
-          <group position={[-10, -5, 0]}>
-              <gridHelper
-                  args={[size, divisions, color]}
-                  position={[size / 2, 0, size / 2]} />
-              <gridHelper
-                  args={[size, divisions, color]}
-                  rotation={[Math.PI / 2, 0, Math.PI / 2]}
-                  position={[0, 3 * size / 2, size / 2]} />
-              <gridHelper
-                  args={[size, divisions, color]}
-                  rotation={[Math.PI / 2, 0, Math.PI / 2]}
-                  position={[0, size / 2, size / 2]} />
-              <gridHelper
-                  args={[size, divisions, color]}
-                  rotation={[Math.PI / 2, 0, 0]}
-                  position={[size / 2, 3 * size / 2, 0]} />
-              <gridHelper
-                  args={[size, divisions, color]}
-                  rotation={[Math.PI / 2, 0, 0]}
-                  position={[size / 2, size / 2, 0]} />
-            </group>
-            <Html position={[5, 10, 0]} className='instructions-label'>
-              <ul>
-                  <li><strong>Drag:</strong> <span>Mouse</span></li>
-                  <li><strong>Rotate:</strong>
-                      <ul>
-                          <li><strong>X-axis:</strong> Q</li>
-                          <li><strong>Y-axis:</strong> E</li>
-                          <li><strong>Z-axis:</strong> R</li>
-                      </ul>
-                  </li>
-                  <li><strong>Hard Drop:</strong> <span>Space</span></li>
-              </ul>
-            </Html>
           </Physics>
         </Suspense>
       </Canvas>
+      <getBlock/>
     </div>
   )
 }
