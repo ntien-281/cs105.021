@@ -7,6 +7,7 @@ import Ui from "./components/Ui";
 import Header from "./components/Header";
 import Lights from "./components/Lights";
 import CameraController from "./components/CameraController";
+import Block from "./components/Block";
 
 function App() {
   const keyMapping = useMemo(
@@ -37,27 +38,12 @@ function App() {
           <Lights />
 
           <Grid color={color} divisions={divisions} size={size} />
-
-          {/* INFO: Mẫu block */}
-          <group position={[0, -3, 0]}>
-            <RoundedBox args={[box_size, box_size, box_size]} position={[1,1,1]} castShadow receiveShadow>
-              <meshStandardMaterial color="#00ff00" />
-            </RoundedBox>
-            <RoundedBox args={[box_size, box_size, box_size]} position={[1,1,1 + box_size]} castShadow receiveShadow>
-              <meshStandardMaterial color="#00ff00" />
-            </RoundedBox>
-            <RoundedBox args={[box_size, box_size, box_size]} position={[1,1 + box_size,1]} castShadow receiveShadow>
-              <meshStandardMaterial color="#00ff00" />
-            </RoundedBox>
-            <RoundedBox args={[box_size, box_size, box_size]} position={[1 + box_size,1,1]} castShadow receiveShadow>
-              <meshStandardMaterial color="#00ff00" />
-            </RoundedBox>
-          </group>
-
+          <Block/>
           <Suspense>
             <Physics debug></Physics>
           </Suspense>
         </Canvas>
+        
       </div>
       <Ui />
     </>
