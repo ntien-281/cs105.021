@@ -7,8 +7,8 @@ html {
 #canvas-container {
     width: 100vw;
     height: 100vh;
-    background-color: linear-gradient(45deg,#8E0E00 0%, #1F1C18 100%);
-    background-image: linear-gradient(45deg,#8E0E00 0%, #1F1C18 100%);
+    background-color: linear-gradient(135deg,#363795 0%, #005C97 100%);
+    background-image: linear-gradient(135deg,#363795 0%, #005C97 100%);
     position: absolute;
     z-index: 0;
 }
@@ -17,7 +17,42 @@ html {
     position: absolute;
     z-index: 100;
     margin: 0px auto;
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    height: 200px;
+    align-items: center;
+    justify-content: space-around;
+    margin-left: 30px;
 }
+.header-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ddd;
+}
+.header-button-wrapper {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+}
+.header-button-wrapper > div > button {
+    padding: 16px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 2px solid #50C878;
+    transition: ease-in;
+    color: #ddd;
+    background-color: transparent;
+}
+.header-button-wrapper > div > button:hover {
+    background-color: #50C878;
+    color: #1F1C18;
+}
+
 /* Right UI */
 .incoming-display {
     white-space: nowrap;
@@ -25,7 +60,7 @@ html {
     color: #ddd;
     position:  absolute;
     left: 100px;
-    top: 100px;
+    top: 300px;
     bottom: 100px;
 }
 /* Right UI CSS */
