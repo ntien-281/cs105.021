@@ -1,74 +1,29 @@
-import React from 'react';
-import { Canvas } from "@react-three/fiber";
-import { RoundedBox } from '@react-three/drei';
+import React, { useEffect } from "react";
+import { Box, Outlines } from "@react-three/drei";
+import { getRandomColor, getRandomPosition, groupsOfBlocks } from "../utils/block";
 
-const box_size = 2; 
+const box_size = 2;
 
-// Function to generate a random position within a given range
-const getRandomPosition = (min, max) => {
-  return Math.random() * (max - min) + min;
-};
+const Block = ({ controlRef, color, xInit, zInit, yInit, typeid}) => {
 
-// Define four groups of blocks
-const groupsOfBlocks = [
-  [
-    [1, 1, 1],
-    [1, 1, 1 + box_size],
-    [1,1 + box_size,1],
-    [1 + box_size,1,1]
-  ],
-  [
-    [1,1,1],
-    [1+box_size,1+box_size,1],
-    [1,1 + box_size,1],
-    [1 + box_size,1,1]
-  ],
-  [
-    [1,1,1],
-    [1,1,1 + box_size],
-    [1,1 + box_size,1],
-    [1,1,1+2*box_size]
-  ],
-  [
-    [1,1,1],
-    [1,1,1 + box_size],
-    [1,1 + box_size,1+box_size],
-    [1,1,1+2*box_size]
-  ],
-  [
-    [1,1,1],
-    [1,1,1 + box_size],
-    [1,1 - box_size,1+box_size],
-    [1,1,1+2*box_size],
-    [1,1-2*box_size,1+box_size]
-  ]
-];
-
-// Function to generate a random group of RoundedBox elements
-const generateRandomGroup = () => {
-  const randomIndex = Math.floor(Math.random() * groupsOfBlocks.length);
-  const group = groupsOfBlocks[randomIndex];
-
-  return group.map((position, index) => (
-    <RoundedBox
-      key={index}
-      args={[box_size, box_size, box_size]}
-      position={position}
-      castShadow
-      receiveShadow
-    >
-      <meshStandardMaterial color="#00ff00" />
-    </RoundedBox>
-  ));
-};
-
-// Component to render the canvas and random group
-const Block = () => {
-  const randomGroup = generateRandomGroup();
+  const blockGroup = groupsOfBlocks[typeid];
 
   return (
-      <group>{randomGroup}</group>
-  );
-};
+    <group position={[xInit, yInit ? yInit : 12, zInit]} ref={controlRef}>
+      {blockGroup.coords.map((position, index) => (
+      <Box
+        key={index}
+        args={[box_size, box_size, box_size]}
+        position={position}
+        castShadow
+        receiveShadow
+      >
+        <meshStandardMaterial color={color} />
+        <Outlines thickness={1} screenspace={true} />
+      </Box>
+    ))}
+    </group>
+  )
+}
 
-export default Block;
+export default Block
