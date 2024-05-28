@@ -6,7 +6,7 @@ import Ui from "./components/Ui";
 import Header from "./components/Header";
 import Lights from "./components/Lights";
 import CameraController from "./components/CameraController";
-import Block from "./components/Block";
+import Block from "./components/Tetrimino";
 import { useGameStore } from "./store/store";
 
 // Game parameters
@@ -22,7 +22,7 @@ function App() {
 
       <div id="canvas-container">
         <Canvas
-          camera={{ fov: 60, near: 0.1, far: 1000, position: [20, 20, 40] }}
+          camera={{ fov: 60, near: 0.1, far: 1000, position: [30, 30, 30] }}
           shadows
         >
           <CameraController />

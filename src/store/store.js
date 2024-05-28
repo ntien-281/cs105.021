@@ -12,7 +12,7 @@ export const useGameStore = create(
   immer((set) => ({
     isPause: false,
     isGame: false,
-    fallenBlock: [],
+    gridLayers: [[],[],[],[],[],[],[],[],[],[],[],[]], // INFO: 12 layers, each layers is a 1d array, add blocks to these  planes as they've fallen, layers having 6x6 = 36 blocks (full) will be dropped and scored
     currentBlock: {
         block: null,
         lowest: 0,
@@ -27,9 +27,12 @@ export const useGameStore = create(
       set((state) => {
         state.isPause = !state.isPause;
       }),
-    addFallenBlock: (block) =>
+    addFallenBlock: (block, layer) =>
       set((state) => {
-        state.fallenBlock = [...state.fallenBlock, block];
+        let newLayers = state.gridLayers;
+        let oldLayer = newLayers[layer];
+        newLayers[layer] = [...oldLayer, block.position];
+        state.gridLayers = newLayers;
       }),
     setCurrentBlock: (block) =>
       set((state) => {

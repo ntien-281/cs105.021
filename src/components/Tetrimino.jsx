@@ -4,12 +4,12 @@ import { getRandomColor, getRandomPosition, groupsOfBlocks } from "../utils/bloc
 
 const box_size = 2;
 
-const Block = ({ controlRef, color, xInit, zInit, yInit, typeid}) => {
+const Tetrimino = ({ controlRef, color, xInit, zInit, yInit, typeid}) => {
 
   const blockGroup = groupsOfBlocks[typeid];
 
   return (
-    <group position={[xInit, yInit ? yInit : 12, zInit]} ref={controlRef}>
+    <group position={[xInit, yInit ? yInit : 26, zInit]} ref={controlRef}>
       {blockGroup.coords.map((position, index) => (
       <Box
         key={index}
@@ -26,4 +26,4 @@ const Block = ({ controlRef, color, xInit, zInit, yInit, typeid}) => {
   )
 }
 
-export default Block
+export default Tetrimino
