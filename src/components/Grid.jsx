@@ -1,5 +1,5 @@
 import { Box, Outlines, Plane } from '@react-three/drei'
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { DoubleSide } from 'three'
 import { useGameStore } from '../store/store'
 import Tetrimino from './Tetrimino'
@@ -17,11 +17,28 @@ const Grid = ({size, divisions, color}) => {
 
   const currentTetrimino = useRef();
   const fallInterval = useRef();
-
   
+  const gridImpact = useCallback((blockPos, tetriPos) => {
+    
+    const blockX =  blockPos.x + tetriPos.x;
+    const blockY =  blockPos.y + tetriPos.y;
+    const blockZ =  blockPos.z + tetriPos.z;
+    
+    const lowerLayer = gridLayers[(blockY - 1) / 2 - 1];
+    console.log("lower layer: ", lowerLayer);
+    for (let i = 0; i < lowerLayer.length; i++) {
+      const x = lowerLayer[i].position[0];
+      const z = lowerLayer[i].position[2];
+      console.log("current comparision x, z: ", x, z, "block: ", blockX, blockZ);
+      if (x == blockX && z == blockZ) {
+        return true;
+      }
+    }
+    return false;
+    
+  }, [gridLayers])
 
   // useEffect(() => {
-    // TODO debug new block distorted
     // console.log(gridLayers);
   //   console.log("curr block: ", currentBlock);
   //   currentTetrimino.current?.children.map(child => {
@@ -51,23 +68,28 @@ const Grid = ({size, divisions, color}) => {
     if (isGame && !isPause && currentBlock.block) {
       fallInterval.current = setInterval(() => {
         // INFO: Handling floor impact  
-        currentTetrimino.current.position.y -= 4;
+        currentTetrimino.current.position.y -= 2;
 
         // INFO: Test if:
         // TODO collision with other blocks
         // - collision with floor
 
         const currTetri = currentTetrimino.current;
+
+        // INFO: Check if any block in tetrimino touches the floor
+        // TODO: or another block in grid layers
         for (let i = 0; i < currTetri.children.length; i++) {
-          let fallenLayer = (currTetri.position.y + currTetri.children[i].position.y - 1) / 2;
-          if (fallenLayer == 0) {
-            currTetri.children.map((child) => {
-              let fallenLayer = (currTetri.position.y + child.position.y - 1) / 2;
+          let currChildPos = currTetri.children[i].position;
+          let currTetriPos = currTetri.position;
+          let fallenLayer = (currTetriPos.y + currChildPos.y - 1) / 2;
+          if (fallenLayer == 0 || gridImpact(currChildPos, currTetriPos)) {
+            currTetri.children.forEach((child) => {
+              let fallenLayer = (currTetriPos.y + child.position.y - 1) / 2;
               const block = {
                 position: [
-                  child.position.x + currTetri.position.x,
+                  child.position.x + currTetriPos.x,
                   fallenLayer * 2 + 1,
-                  child.position.z + currTetri.position.z,
+                  child.position.z + currTetriPos.z,
                 ],
                 color: child.color
               }
@@ -75,13 +97,14 @@ const Grid = ({size, divisions, color}) => {
             });
             break;
           }
+          
         }
       }, 1000)
     }
     return () => {
       clearInterval(fallInterval.current);
     }
-  }, [isGame, isPause, currentBlock, addFallenBlock])
+  }, [isGame, isPause, currentBlock, addFallenBlock, gridLayers, gridImpact])
 
   return (
     <>

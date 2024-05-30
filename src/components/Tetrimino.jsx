@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, Outlines } from "@react-three/drei";
-import { getRandomColor, getRandomPosition, groupsOfBlocks } from "../utils/block";
+import { groupsOfBlocks } from "../utils/block";
 
 const box_size = 2;
 
