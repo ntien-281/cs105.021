@@ -22,7 +22,7 @@ function App() {
 
       <div id="canvas-container">
         <Canvas
-          camera={{ fov: 60, near: 0.1, far: 1000, position: [30, 30, 30] }}
+          camera={{ fov: 60, near: 0.1, far: 1000, position: [30, 40, 30] }}
           shadows
         >
           <CameraController />
