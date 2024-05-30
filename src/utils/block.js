@@ -1,7 +1,6 @@
 const box_size = 2
 export const groupsOfBlocks = [
   {
-    lowestY: 0,
     coords: [
       [1, 1, 1],
       [1, 1, 1 + box_size],
@@ -10,7 +9,6 @@ export const groupsOfBlocks = [
     ],
   },
   {
-    lowestY: 0,
     coords: [
       [1, 1, 1],
       [1 + box_size, 1 + box_size, 1],
@@ -19,7 +17,6 @@ export const groupsOfBlocks = [
     ],
   },
   {
-    lowestY: 0,
     coords: [
       [1, 1, 1],
       [1, 1, 1 + box_size],
@@ -28,7 +25,6 @@ export const groupsOfBlocks = [
     ],
   },
   {
-    lowestY: 0,
     coords: [
       [1, 1, 1],
       [1, 1, 1 + box_size],
@@ -37,7 +33,6 @@ export const groupsOfBlocks = [
     ],
   },
   {
-    lowestY: 2 * box_size,
     coords: [
       [1, 1, 1],
       [1, 1, 1 + box_size],
@@ -68,7 +63,6 @@ export const generateRandomGroup = () => {
     typeid: randomIndex,
     color: colorInit,
     xInit,
-    zInit,
-    lowestY: groupsOfBlocks[randomIndex].lowestY,
+    zInit,  
   }
 };

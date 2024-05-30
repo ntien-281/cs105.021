@@ -14,84 +14,71 @@ const Grid = ({size, divisions, color}) => {
   const setCurrentBlock = useGameStore(state => state.setCurrentBlock);
   const addFallenBlock = useGameStore(state => state.addFallenBlock);
   const gridLayers = useGameStore(state => state.gridLayers);
-  const setLowestPointOfCurrentBlock = useGameStore(
-    (state) => state.setLowestPointOfCurrentBlock
-  );
-  const setCurrentBlockColor = useGameStore(
-    (state) => state.setCurrentBlockColor
-  );
-  const setCurrentBlockType = useGameStore(
-    (state) => state.setCurrentBlockType
-  );
 
   const currentTetrimino = useRef();
   const fallInterval = useRef();
 
   
 
-  useEffect(() => {
+  // useEffect(() => {
     // TODO debug new block distorted
-    console.log(gridLayers);
-    // console.log(currentBlock)
-  }, [gridLayers])
+    // console.log(gridLayers);
+  //   console.log("curr block: ", currentBlock);
+  //   currentTetrimino.current?.children.map(child => {
+  //     console.log(child.position);
+  //   });
+  // }, [currentBlock, currentTetrimino])
 
   useEffect(() => {
     // INFO: create new block on game begin or current block had fallen
     if (isGame) {
       const randomGroup = generateRandomGroup();
-      setLowestPointOfCurrentBlock(randomGroup.lowestY);
-      setCurrentBlockColor(randomGroup.color);
-      setCurrentBlockType(randomGroup.typeid);
-      setCurrentBlock(<Tetrimino controlRef={currentTetrimino} color={randomGroup.color} xInit={randomGroup.xInit} zInit={randomGroup.zInit} typeid={randomGroup.typeid} />);
+      const newBlock = {
+        block: <Tetrimino controlRef={currentTetrimino} color={randomGroup.color} xInit={randomGroup.xInit} zInit={randomGroup.zInit} typeid={randomGroup.typeid} />,
+        color: randomGroup.color,
+        typeid: randomGroup.typeid
+      };
+      setCurrentBlock(newBlock);
     }
-  }, [isGame, setCurrentBlock, gridLayers, setLowestPointOfCurrentBlock, setCurrentBlockColor, setCurrentBlockType]);
+  }, [isGame, setCurrentBlock, gridLayers]);
   
 
   // INFO: tetrimino impact handling
   useEffect(() => {
     if (!isGame) {
-      // clear interval on reset
-      // console.log("stopped...");
       clearInterval(fallInterval);
     }
     if (isGame && !isPause && currentBlock.block) {
-      // console.log("falling...");
       fallInterval.current = setInterval(() => {
         // INFO: Handling floor impact  
-        currentTetrimino.current.position.y -= 2;
-        // const currentLowest = currentTetrimino.current.position.y - currentBlock.lowest;
+        currentTetrimino.current.position.y -= 4;
 
         // INFO: Test if:
         // TODO collision with other blocks
         // - collision with floor
 
         const currTetri = currentTetrimino.current;
-        console.log("debuggin...");
         for (let i = 0; i < currTetri.children.length; i++) {
           let fallenLayer = (currTetri.position.y + currTetri.children[i].position.y - 1) / 2;
-          console.log(fallenLayer);
           if (fallenLayer == 0) {
             currTetri.children.map((child) => {
               let fallenLayer = (currTetri.position.y + child.position.y - 1) / 2;
-              // let x = currTetri.position.x + child.position.x - 1;
-              // let z = currTetri.position.z + child.position.z - 1;
-              child.position.x += currTetri.position.x;
-              child.position.z += currTetri.position.z;
-              child.position.y = fallenLayer * 2 + 1;
-              addFallenBlock(child, fallenLayer);
+              const block = {
+                position: [
+                  child.position.x + currTetri.position.x,
+                  fallenLayer * 2 + 1,
+                  child.position.z + currTetri.position.z,
+                ],
+                color: child.color
+              }
+              addFallenBlock(block, fallenLayer);
             });
             break;
           }
         }
-
-          // INFO add to fallen blocks
-          // const fallen = {...currentBlock, lastX: currentTetrimino.current.position.x, lastY: currentTetrimino.current.position.y, lastZ: currentTetrimino.current.position.z};
-          
-          // addFallenBlock(fallen);
       }, 1000)
     }
     return () => {
-      // console.log("stopped...");
       clearInterval(fallInterval.current);
     }
   }, [isGame, isPause, currentBlock, addFallenBlock])
@@ -105,10 +92,9 @@ const Grid = ({size, divisions, color}) => {
       {gridLayers.map((layer, index) => 
         <group key={index}>
           {layer.map((block, index) => {
-            // console.log("xyz: ", block);
-            return <Box key={index} position={block} args={[2,2,2]}>
+            return <Box key={index} position={block.position} args={[2,2,2]}>
               <Outlines thickness={1} screenspace={true} />
-              <meshStandardMaterial color="#839192" />
+              <meshStandardMaterial color={block.color} />
             </Box>
           })}
         </group>

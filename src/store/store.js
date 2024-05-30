@@ -15,9 +15,8 @@ export const useGameStore = create(
     gridLayers: [[],[],[],[],[],[],[],[],[],[],[],[]], // INFO: 12 layers, each layers is a 1d array, add blocks to these  planes as they've fallen, layers having 6x6 = 36 blocks (full) will be dropped and scored
     currentBlock: {
         block: null,
-        lowest: 0,
         color: "",
-        typeid: 0,
+        typeid: null,
     },
     setIsGame: () =>
       set((state) => {
@@ -31,33 +30,20 @@ export const useGameStore = create(
       set((state) => {
         let newLayers = state.gridLayers;
         let oldLayer = newLayers[layer];
-        newLayers[layer] = [...oldLayer, block.position];
+        newLayers[layer] = [...oldLayer, block];
         state.gridLayers = newLayers;
       }),
     setCurrentBlock: (block) =>
       set((state) => {
-        state.currentBlock.block = block;
-      }),
-    setLowestPointOfCurrentBlock: (val) =>
-      set((state) => {
-        state.currentBlock.lowest = val;
-      }),
-    setCurrentBlockColor: (val) =>
-      set((state) => {
-        state.currentBlock.color = val;
-      }),
-    setCurrentBlockType: (val) =>
-      set((state) => {
-        state.currentBlock.typeid = val;
+        state.currentBlock = block;
       }),
     resetGame: () =>
       set((state) => {
         state.isPause = false;
         state.isGame = false;
-        state.fallenBlock = [];
+        state.gridLayers = [[],[],[],[],[],[],[],[],[],[],[],[]];
         state.currentBlock = {
             block: null,
-            lowest: 0,
             color: "",
         };
       }),
