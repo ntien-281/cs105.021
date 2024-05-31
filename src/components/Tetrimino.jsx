@@ -1,15 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, Outlines } from "@react-three/drei";
-import { getRandomColor, getRandomPosition, groupsOfBlocks } from "../utils/block";
+import { groupsOfBlocks } from "../utils/block";
 
 const box_size = 2;
 
-const Block = ({ controlRef, color, xInit, zInit, yInit, typeid}) => {
+const Tetrimino = ({ controlRef, color, xInit, zInit, yInit, typeid}) => {
 
   const blockGroup = groupsOfBlocks[typeid];
 
   return (
-    <group position={[xInit, yInit ? yInit : 12, zInit]} ref={controlRef}>
+    <group position={[xInit, 24, zInit]} ref={controlRef}>
       {blockGroup.coords.map((position, index) => (
       <Box
         key={index}
@@ -26,4 +26,4 @@ const Block = ({ controlRef, color, xInit, zInit, yInit, typeid}) => {
   )
 }
 
-export default Block
+export default Tetrimino

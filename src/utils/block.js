@@ -9,14 +9,13 @@ export const groupsOfBlocks = [
             [1 + box_size, 1, 1],
         ],
     },
-    // square
     {
         lowestY: 0,
         coords: [
             [1, 1, 1],
-            [1, 1 + box_size, 1 + box_size],
+            [1 + box_size, 1 + box_size, 1],
             [1, 1 + box_size, 1],
-            [1, 1, 1 + box_size],
+            [1 + box_size, 1, 1],
         ],
     },
     {
