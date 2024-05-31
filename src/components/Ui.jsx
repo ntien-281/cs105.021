@@ -17,6 +17,15 @@ const Ui = () => {
             <strong>Camera: </strong> <span>Kéo thả chuột</span>
           </li>
           <li>
+            <strong>
+              Di chuyển
+            </strong>
+            <ul>
+              <li><strong>X:</strong> W, A</li>
+              <li><strong>Z:</strong> S, D</li>
+            </ul>
+          </li>
+          <li>
             <strong>Xoay:</strong>
             <ul>
               <li>
