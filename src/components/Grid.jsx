@@ -63,6 +63,106 @@ const Grid = ({size, divisions, color}) => {
     }
   }, [isGame, isPause, currentBlock, addFallenBlock])
 
+  const takeMaxPosCube = (currentTetrimino,type) => {
+    if (type == 1) {
+      let max = currentTetrimino.current.children[0].position.z;
+      for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
+        if (max < currentTetrimino.current.children[i].position.z) {
+          max = currentTetrimino.current.children[i].position.z
+        }
+      }
+      return max
+    }
+    else {
+      let max = currentTetrimino.current.children[0].position.x;
+      for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
+        if (max < currentTetrimino.current.children[i].position.x) {
+          max = currentTetrimino.current.children[i].position.x
+        }
+      }
+      return max
+    }
+  }
+  // take min position of cube in blocks
+  const takeMinPosCube = (currentTetrimino,type) => {
+    if (type == 1) {
+      let min = currentTetrimino.current.children[0].position.z;
+      for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
+        if (min > currentTetrimino.current.children[i].position.z) {
+          min = currentTetrimino.current.children[i].position.z
+        }
+      }
+      return min
+    }
+    else {
+      let min = currentTetrimino.current.children[0].position.x;
+      for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
+        if (min > currentTetrimino.current.children[i].position.x) {
+          min = currentTetrimino.current.children[i].position.x
+        }
+      }
+      return min
+    }
+  }
+  const canRotate = (currentTetrimino,type) => {
+    // if (type == 'y') {
+    //   for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
+    //     if (min > currentTetrimino.current.children[i].position.x) {
+    //       min = currentTetrimino.current.children[i].position.x
+    //     }
+    //   }
+    // }
+  }
+  const handleKeyDown = (event) => {
+    if (!currentTetrimino.current) return;
+    switch (event.key) {
+      case 'a':
+        if (takeMinPosCube(currentTetrimino,2) + currentTetrimino.current.position.x - 3 >= 0) {
+          currentTetrimino.current.position.x -= 2;
+        }
+        break;
+      case 'd':
+        if (takeMaxPosCube(currentTetrimino,2) + currentTetrimino.current.position.x + 1 <= 10) {
+          currentTetrimino.current.position.x += 2;
+        }
+        break;
+      case 'w':
+        if (takeMinPosCube(currentTetrimino,1) + currentTetrimino.current.position.z - 3 >= 0) {
+          currentTetrimino.current.position.z -= 2;
+        }
+        break;
+      case 's':
+        if (takeMaxPosCube(currentTetrimino,1) + currentTetrimino.current.position.z + 1 <= 10) {
+          currentTetrimino.current.position.z += 2;
+        }
+        break;
+      case 'q':
+        if (canRotate(currentTetrimino,'z')){
+          console.log(currentTetrimino.current.position)
+          for (let  i= 0; i < currentTetrimino.current.children.length; i++){
+            console.log(currentTetrimino.current.children[i].position)
+          }
+          currentTetrimino.current.rotation.z += Math.PI/4;
+          console.log(currentTetrimino.current.position)
+          for (let  i= 0; i < currentTetrimino.current.children.length; i++){
+            console.log(currentTetrimino.current.children[i].position)
+          }
+        }
+        break;
+      case 'e':
+        break;
+      default:
+        break;
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   return (
     <>
       {isGame && currentBlock.block}
