@@ -1,8 +1,8 @@
-import { Plane } from '@react-three/drei'
-import React, { useEffect, useRef } from 'react'
+import { Box, Outlines, Plane } from '@react-three/drei'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { DoubleSide } from 'three'
 import { useGameStore } from '../store/store'
-import Block from './Block'
+import Tetrimino from './Tetrimino'
 import { generateRandomGroup } from '../utils/block'
 
 const Grid = ({size, divisions, color}) => {
@@ -13,56 +13,98 @@ const Grid = ({size, divisions, color}) => {
   const currentBlock = useGameStore(state => state.currentBlock);
   const setCurrentBlock = useGameStore(state => state.setCurrentBlock);
   const addFallenBlock = useGameStore(state => state.addFallenBlock);
-  const fallenBlock = useGameStore(state => state.fallenBlock);const setLowestPointOfCurrentBlock = useGameStore(
-    (state) => state.setLowestPointOfCurrentBlock
-  );
-  const setCurrentBlockColor = useGameStore(
-    (state) => state.setCurrentBlockColor
-  );
-  const setCurrentBlockType = useGameStore(
-    (state) => state.setCurrentBlockType
-  );
+  const gridLayers = useGameStore(state => state.gridLayers);
 
   const currentTetrimino = useRef();
   const fallInterval = useRef();
+  
+  const gridImpact = useCallback((blockPos, tetriPos) => {
+    
+    const blockX =  blockPos.x + tetriPos.x;
+    const blockY =  blockPos.y + tetriPos.y;
+    const blockZ =  blockPos.z + tetriPos.z;
+    
+    const lowerLayer = gridLayers[(blockY - 1) / 2 - 1];
+    console.log("lower layer: ", lowerLayer);
+    for (let i = 0; i < lowerLayer.length; i++) {
+      const x = lowerLayer[i].position[0];
+      const z = lowerLayer[i].position[2];
+      console.log("current comparision x, z: ", x, z, "block: ", blockX, blockZ);
+      if (x == blockX && z == blockZ) {
+        return true;
+      }
+    }
+    return false;
+    
+  }, [gridLayers])
+
+  // useEffect(() => {
+    // console.log(gridLayers);
+  //   console.log("curr block: ", currentBlock);
+  //   currentTetrimino.current?.children.map(child => {
+  //     console.log(child.position);
+  //   });
+  // }, [currentBlock, currentTetrimino])
 
   useEffect(() => {
-    console.log(fallenBlock);
-  }, [fallenBlock])
-
-  useEffect(() => {
+    // INFO: create new block on game begin or current block had fallen
     if (isGame) {
       const randomGroup = generateRandomGroup();
-      setLowestPointOfCurrentBlock(randomGroup.lowestY);
-      setCurrentBlockColor(randomGroup.color);
-      setCurrentBlockType(randomGroup.typeid);
-      setCurrentBlock(<Block controlRef={currentTetrimino} color={randomGroup.color} xInit={randomGroup.xInit} zInit={randomGroup.zInit} typeid={randomGroup.typeid} />);
+      const newBlock = {
+        block: <Tetrimino controlRef={currentTetrimino} color={randomGroup.color} xInit={randomGroup.xInit} zInit={randomGroup.zInit} typeid={randomGroup.typeid} />,
+        color: randomGroup.color,
+        typeid: randomGroup.typeid
+      };
+      setCurrentBlock(newBlock);
     }
-  }, [isGame, setCurrentBlock, fallenBlock, setLowestPointOfCurrentBlock, setCurrentBlockColor, setCurrentBlockType]);
+  }, [isGame, setCurrentBlock, gridLayers]);
   
-  // INFO: falling tetrimino handling
+
+  // INFO: tetrimino impact handling
   useEffect(() => {
     if (!isGame) {
-      // clear interval on reset
-      // console.log("stopped...");
       clearInterval(fallInterval);
     }
     if (isGame && !isPause && currentBlock.block) {
       fallInterval.current = setInterval(() => {
-          currentTetrimino.current.position.y -= 2;// INFO: Reach bottom when == -10
-          const currentLowest = currentTetrimino.current.position.y - currentBlock.lowest;
-          if (currentLowest == -10) {
-            // INFO: add to fallen blocks
-            const fallen = {...currentBlock, lastX: currentTetrimino.current.position.x, lastY: currentTetrimino.current.position.y, lastZ: currentTetrimino.current.position.z};
-            addFallenBlock(fallen);
+        // INFO: Handling floor impact  
+        currentTetrimino.current.position.y -= 2;
+
+        // INFO: Test if:
+        // TODO collision with other blocks
+        // - collision with floor
+
+        const currTetri = currentTetrimino.current;
+
+        // INFO: Check if any block in tetrimino touches the floor
+        // TODO: or another block in grid layers
+        for (let i = 0; i < currTetri.children.length; i++) {
+          let currChildPos = currTetri.children[i].position;
+          let currTetriPos = currTetri.position;
+          let fallenLayer = (currTetriPos.y + currChildPos.y - 1) / 2;
+          if (fallenLayer == 0 || gridImpact(currChildPos, currTetriPos)) {
+            currTetri.children.forEach((child) => {
+              let fallenLayer = (currTetriPos.y + child.position.y - 1) / 2;
+              const block = {
+                position: [
+                  child.position.x + currTetriPos.x,
+                  fallenLayer * 2 + 1,
+                  child.position.z + currTetriPos.z,
+                ],
+                color: child.color
+              }
+              addFallenBlock(block, fallenLayer);
+            });
+            break;
           }
+          
+        }
       }, 1000)
     }
     return () => {
       clearInterval(fallInterval.current);
     }
-  }, [isGame, isPause, currentBlock, addFallenBlock])
-
+  }, [isGame, isPause, currentBlock, addFallenBlock, gridLayers, gridImpact])
   const takeMaxPosCube = (currentTetrimino,type) => {
     if (type == 1) {
       let max = currentTetrimino.current.children[0].position.z;
@@ -83,6 +125,7 @@ const Grid = ({size, divisions, color}) => {
       return max
     }
   }
+
   // take min position of cube in blocks
   const takeMinPosCube = (currentTetrimino,type) => {
     if (type == 1) {
@@ -103,15 +146,6 @@ const Grid = ({size, divisions, color}) => {
       }
       return min
     }
-  }
-  const canRotate = (currentTetrimino,type) => {
-    // if (type == 'y') {
-    //   for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
-    //     if (min > currentTetrimino.current.children[i].position.x) {
-    //       min = currentTetrimino.current.children[i].position.x
-    //     }
-    //   }
-    // }
   }
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
@@ -137,17 +171,6 @@ const Grid = ({size, divisions, color}) => {
         }
         break;
       case 'q':
-        if (canRotate(currentTetrimino,'z')){
-          console.log(currentTetrimino.current.position)
-          for (let  i= 0; i < currentTetrimino.current.children.length; i++){
-            console.log(currentTetrimino.current.children[i].position)
-          }
-          currentTetrimino.current.rotation.z += Math.PI/4;
-          console.log(currentTetrimino.current.position)
-          for (let  i= 0; i < currentTetrimino.current.children.length; i++){
-            console.log(currentTetrimino.current.children[i].position)
-          }
-        }
         break;
       case 'e':
         break;
@@ -162,17 +185,24 @@ const Grid = ({size, divisions, color}) => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-
   return (
     <>
+      {/* Current tetrimino */}
       {isGame && currentBlock.block}
 
       {/* Fallen blocks */}
-      {fallenBlock.map((fall, index) => 
-        <Block key={index} controlRef={null} color={fall.color} xInit={fall.lastX} zInit={fall.lastZ} yInit={fall.lastY} typeid={fall.typeid} />
+      {gridLayers.map((layer, index) => 
+        <group key={index}>
+          {layer.map((block, index) => {
+            return <Box key={index} position={block.position} args={[2,2,2]}>
+              <Outlines thickness={1} screenspace={true} />
+              <meshStandardMaterial color={block.color} />
+            </Box>
+          })}
+        </group>
       )}
       {/* Grid */}
-      <group position={[0, -10, 0]}>
+      <group position={[0, 0, 0]}>
         <gridHelper
           args={[size, divisions, color]}
           position={[size / 2, 0, size / 2]}
@@ -186,13 +216,29 @@ const Grid = ({size, divisions, color}) => {
         >
           <meshStandardMaterial shadowSide={DoubleSide} />
         </Plane>
-        <gridHelper args={[size, divisions, color]} rotation={[Math.PI / 2, 0, Math.PI / 2]} position={[0, (3 * size) / 2, size / 2]} />
-        <gridHelper args={[size, divisions, color]} rotation={[Math.PI / 2, 0, Math.PI / 2]} position={[0, size / 2, size / 2]} />
-        <gridHelper args={[size, divisions, color]} rotation={[Math.PI / 2, 0, 0]} position={[size / 2, (3 * size) / 2, 0]} />
-        <gridHelper args={[size, divisions, color]} rotation={[Math.PI / 2, 0, 0]} position={[size / 2, size / 2, 0]} />
+        <gridHelper
+          args={[size, divisions, color]}
+          rotation={[Math.PI / 2, 0, Math.PI / 2]}
+          position={[0, 3 * size / 2, size / 2]} 
+        />
+        <gridHelper
+          args={[size, divisions, color]}
+          rotation={[Math.PI / 2, 0, Math.PI / 2]}
+          position={[0, size / 2, size / 2]} 
+        />
+        <gridHelper
+          args={[size, divisions, color]}
+          rotation={[Math.PI / 2, 0, 0]}
+          position={[size / 2, 3 * size / 2, 0]} 
+        />
+        <gridHelper
+          args={[size, divisions, color]}
+          rotation={[Math.PI / 2, 0, 0]}
+          position={[size / 2, size / 2, 0]} 
+        />
       </group>
     </>
-  );
-};
+  )
+}
 
-export default Grid;
+export default Grid
