@@ -3,15 +3,11 @@ import React, { useRef } from "react";
 import { useGameStore } from "../store/store";
 import { Canvas } from "@react-three/fiber";
 import Tetrimino from "./Tetrimino";
-import Lights from "./Lights";
-import { Plane } from "@react-three/drei";
+import AnimatedTetri from "./AnimatedTetri";
 
 const Ui = () => {
   const score = useGameStore((state) => state.score);
   const nextBlock = useGameStore((state) => state.nextBlock);
-  const nextBlockRef = useRef();
-
-  
 
   return (
     // Left UI: incoming blocks with animation
@@ -21,16 +17,16 @@ const Ui = () => {
 
         {nextBlock.typeid !== null ? (
           <Canvas
-            camera={{ fov: 60, near: 0.1, far: 1000, position: [10, 10, 10] }}
+            camera={{ fov: 60, near: 0.1, far: 1000, position: [10, 10, 12] }}
           >
-            <group position={[0, 2, 0]}>
+            <AnimatedTetri position={[0, 2, 0]}>
               <Tetrimino
-                controlRef={nextBlockRef}
+                controlRef={null}
                 color={nextBlock.color}
                 typeid={nextBlock.typeid}
                 top={false}
               />
-            </group>
+            </AnimatedTetri>
             <directionalLight
               position={[6, 30, 6]}
               intensity={5}
