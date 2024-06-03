@@ -6,14 +6,15 @@ import Tetrimino from './Tetrimino'
 import { generateRandomGroup } from '../utils/block'
 
 const Grid = ({size, divisions, color}) => {
-  
-
   const isGame = useGameStore(state => state.isGame);
   const isPause = useGameStore(state => state.isPause);
   const currentBlock = useGameStore(state => state.currentBlock);
   const setCurrentBlock = useGameStore(state => state.setCurrentBlock);
   const addFallenBlock = useGameStore(state => state.addFallenBlock);
   const gridLayers = useGameStore(state => state.gridLayers);
+  const removeFullLayers = useGameStore(state => state.removeFullLayers);
+  const nextBlock = useGameStore(state => state.nextBlock);
+  const setNextBlock = useGameStore(state => state.setNextBlock);
 
   const currentTetrimino = useRef();
   const fallInterval = useRef();
@@ -23,13 +24,18 @@ const Grid = ({size, divisions, color}) => {
     const blockX =  blockPos.x + tetriPos.x;
     const blockY =  blockPos.y + tetriPos.y;
     const blockZ =  blockPos.z + tetriPos.z;
+
+    const llIndex = (blockY - 1) / 2 - 1;
+    if (llIndex < 0) {
+      return false;
+    }
     
-    const lowerLayer = gridLayers[(blockY - 1) / 2 - 1];
-    console.log("lower layer: ", lowerLayer);
+    const lowerLayer = gridLayers[llIndex];
+    // console.log("lower layer: ", lowerLayer);
     for (let i = 0; i < lowerLayer.length; i++) {
       const x = lowerLayer[i].position[0];
-      const z = lowerLayer[i].position[2];
-      console.log("current comparision x, z: ", x, z, "block: ", blockX, blockZ);
+      const z = lowerLayer[i].position[1];
+      // console.log("current comparision x, z: ", x, z, "block: ", blockX, blockZ);
       if (x == blockX && z == blockZ) {
         return true;
       }
@@ -38,22 +44,38 @@ const Grid = ({size, divisions, color}) => {
     
   }, [gridLayers])
 
-  // useEffect(() => {
-    // console.log(gridLayers);
-  //   console.log("curr block: ", currentBlock);
-  //   currentTetrimino.current?.children.map(child => {
-  //     console.log(child.position);
-  //   });
-  // }, [currentBlock, currentTetrimino])
+  const handleFullLayers = useCallback(() => {
+    // TODO: animation here
+
+    removeFullLayers();
+  }, [removeFullLayers])
+
+  useEffect(() => {
+    const randomGroup = generateRandomGroup();
+    const newNextBlock = {
+      typeid: randomGroup.typeid,
+      color: randomGroup.color,
+      xInit: randomGroup.xInit,
+      zInit: randomGroup.zInit,
+    }
+    setNextBlock(newNextBlock);
+  }, [])
 
   useEffect(() => {
     // INFO: create new block on game begin or current block had fallen
     if (isGame) {
       const randomGroup = generateRandomGroup();
-      const newBlock = {
-        block: <Tetrimino controlRef={currentTetrimino} color={randomGroup.color} xInit={randomGroup.xInit} zInit={randomGroup.zInit} typeid={randomGroup.typeid} />,
+      const newNextBlock = {
+        typeid: randomGroup.typeid,
         color: randomGroup.color,
-        typeid: randomGroup.typeid
+        xInit: randomGroup.xInit,
+        zInit: randomGroup.zInit,
+      }
+      setNextBlock(newNextBlock);
+      const newBlock = {
+        block: <Tetrimino controlRef={currentTetrimino} color={nextBlock.color} xInit={nextBlock.xInit} zInit={nextBlock.zInit} typeid={nextBlock.typeid} />,
+        color: nextBlock.color,
+        typeid: nextBlock.typeid
       };
       setCurrentBlock(newBlock);
     }
@@ -67,17 +89,12 @@ const Grid = ({size, divisions, color}) => {
     }
     if (isGame && !isPause && currentBlock.block) {
       fallInterval.current = setInterval(() => {
-        // INFO: Handling floor impact  
         currentTetrimino.current.position.y -= 2;
-
-        // INFO: Test if:
-        // TODO collision with other blocks
-        // - collision with floor
 
         const currTetri = currentTetrimino.current;
 
         // INFO: Check if any block in tetrimino touches the floor
-        // TODO: or another block in grid layers
+        // or another block in grid layers
         for (let i = 0; i < currTetri.children.length; i++) {
           let currChildPos = currTetri.children[i].position;
           let currTetriPos = currTetri.position;
@@ -85,26 +102,29 @@ const Grid = ({size, divisions, color}) => {
           if (fallenLayer == 0 || gridImpact(currChildPos, currTetriPos)) {
             currTetri.children.forEach((child) => {
               let fallenLayer = (currTetriPos.y + child.position.y - 1) / 2;
-              const block = {
-                position: [
-                  child.position.x + currTetriPos.x,
-                  fallenLayer * 2 + 1,
-                  child.position.z + currTetriPos.z,
-                ],
-                color: child.color
+              if (fallenLayer >= 0) {
+                const block = {
+                  position: [
+                    child.position.x + currTetriPos.x,
+                    child.position.z + currTetriPos.z,
+                  ],
+                  color: child.color
+                }
+                addFallenBlock(block, fallenLayer);
               }
-              addFallenBlock(block, fallenLayer);
             });
             break;
           }
-          
         }
-      }, 1000)
+
+        // INFO: handle scores and full layers clearing
+        handleFullLayers();
+      }, 500)
     }
     return () => {
       clearInterval(fallInterval.current);
     }
-  }, [isGame, isPause, currentBlock, addFallenBlock, gridLayers, gridImpact])
+  }, [isGame, isPause, currentBlock, addFallenBlock, gridLayers, gridImpact, handleFullLayers])
   const takeMaxPosCube = (currentTetrimino,type) => {
     if (type == 1) {
       let max = currentTetrimino.current.children[0].position.z;
@@ -193,8 +213,8 @@ const Grid = ({size, divisions, color}) => {
       {/* Fallen blocks */}
       {gridLayers.map((layer, index) => 
         <group key={index}>
-          {layer.map((block, index) => {
-            return <Box key={index} position={block.position} args={[2,2,2]}>
+          {layer.map((block, indexBlock) => {
+            return <Box key={indexBlock} position={[block.position[0], index * 2 + 1, block.position[1]]} args={[2,2,2]} receiveShadow>
               <Outlines thickness={1} screenspace={true} />
               <meshStandardMaterial color={block.color} />
             </Box>
