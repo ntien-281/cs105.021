@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { Box, Outlines, Plane } from '@react-three/drei'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { DoubleSide } from 'three'
@@ -23,13 +24,10 @@ const Grid = ({size, divisions, color}) => {
     const blockX =  blockPos.x + tetriPos.x;
     const blockY =  blockPos.y + tetriPos.y;
     const blockZ =  blockPos.z + tetriPos.z;
-    
     const lowerLayer = gridLayers[(blockY - 1) / 2 - 1];
-    console.log("lower layer: ", lowerLayer);
     for (let i = 0; i < lowerLayer.length; i++) {
       const x = lowerLayer[i].position[0];
       const z = lowerLayer[i].position[2];
-      console.log("current comparision x, z: ", x, z, "block: ", blockX, blockZ);
       if (x == blockX && z == blockZ) {
         return true;
       }
@@ -37,7 +35,6 @@ const Grid = ({size, divisions, color}) => {
     return false;
     
   }, [gridLayers])
-
   // useEffect(() => {
     // console.log(gridLayers);
   //   console.log("curr block: ", currentBlock);
@@ -108,21 +105,25 @@ const Grid = ({size, divisions, color}) => {
   const takeMaxPosCube = (currentTetrimino,type) => {
     if (type == 1) {
       let max = currentTetrimino.current.children[0].position.z;
+      let maxPos = currentTetrimino.current.children[0].position
       for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
         if (max < currentTetrimino.current.children[i].position.z) {
+          maxPos = currentTetrimino.current.children[i].position
           max = currentTetrimino.current.children[i].position.z
         }
       }
-      return max
+      return maxPos
     }
     else {
       let max = currentTetrimino.current.children[0].position.x;
+      let maxPos = currentTetrimino.current.children[0].position
       for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
         if (max < currentTetrimino.current.children[i].position.x) {
+          maxPos = currentTetrimino.current.children[i].position
           max = currentTetrimino.current.children[i].position.x
         }
       }
-      return max
+      return maxPos
     }
   }
 
@@ -130,44 +131,85 @@ const Grid = ({size, divisions, color}) => {
   const takeMinPosCube = (currentTetrimino,type) => {
     if (type == 1) {
       let min = currentTetrimino.current.children[0].position.z;
+      let minPos = currentTetrimino.current.children[0].position;
       for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
         if (min > currentTetrimino.current.children[i].position.z) {
           min = currentTetrimino.current.children[i].position.z
+          minPos = currentTetrimino.current.children[i].position;
         }
       }
-      return min
+      return minPos
     }
     else {
       let min = currentTetrimino.current.children[0].position.x;
+      let minPos = currentTetrimino.current.children[0].position;
       for (let  i= 0; i < currentTetrimino.current.children.length; i++) {
         if (min > currentTetrimino.current.children[i].position.x) {
           min = currentTetrimino.current.children[i].position.x
+          minPos = currentTetrimino.current.children[i].position;
         }
       }
-      return min
+      return minPos
     }
   }
+  const checkCollision = useCallback((blockPos, tetriPos,type) => {
+    
+    const blockX =  blockPos.x + tetriPos.x - 1;
+    const blockY =  blockPos.y + tetriPos.y;
+    const blockZ =  blockPos.z + tetriPos.z - 1;
+    console.log(tetriPos)
+    console.log(blockX,blockY,blockZ)
+    const curLayer = gridLayers[(blockY - 1) / 2];
+    console.log(curLayer)
+    if (type == 1) {
+      for (let i = 0; i < curLayer.length; i++) {
+        let x = curLayer[i].position[0];
+        let z = curLayer[i].position[2];
+        if (blockX - 2 == x || blockZ - 2 == z) {
+          return true;
+        }
+      }
+      return false;
+    }
+    else if (type == 2) {
+      for (let i = 0; i < curLayer.length; i++) {
+        let x = curLayer[i].position[0];
+        let z = curLayer[i].position[2];
+        if (blockX + 2 == x || blockZ + 2 == z) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+  }, [gridLayers])
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
+    const posTetri = currentTetrimino.current.position
     switch (event.key) {
       case 'a':
-        if (takeMinPosCube(currentTetrimino,2) + currentTetrimino.current.position.x - 3 >= 0) {
-          currentTetrimino.current.position.x -= 2;
+        const minPosX = takeMinPosCube(currentTetrimino,2)
+        if (minPosX.x + posTetri.x - 3 >= 0 && checkCollision(minPosX,currentTetrimino.current.position,1) == false) {
+          posTetri.x -= 2;
+          
         }
         break;
       case 'd':
-        if (takeMaxPosCube(currentTetrimino,2) + currentTetrimino.current.position.x + 1 <= 10) {
-          currentTetrimino.current.position.x += 2;
+        const maxPosX = takeMaxPosCube(currentTetrimino,2)
+        if (maxPosX.x + posTetri.x + 1 <= 10) {
+          posTetri.x += 2;
         }
         break;
       case 'w':
-        if (takeMinPosCube(currentTetrimino,1) + currentTetrimino.current.position.z - 3 >= 0) {
-          currentTetrimino.current.position.z -= 2;
+        const minPosZ = takeMinPosCube(currentTetrimino,1)
+        if (minPosZ.z + posTetri.z - 3 >= 0) {
+          posTetri.z -= 2;
         }
         break;
       case 's':
-        if (takeMaxPosCube(currentTetrimino,1) + currentTetrimino.current.position.z + 1 <= 10) {
-          currentTetrimino.current.position.z += 2;
+        const maxPosZ = takeMaxPosCube(currentTetrimino,1)
+        if (maxPosZ.z + posTetri.z + 1 <= 10) {
+          posTetri.z += 2;
         }
         break;
       case 'q':
