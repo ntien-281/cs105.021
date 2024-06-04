@@ -54,14 +54,20 @@ html {
 }
 
 /* Right UI */
-.incoming-display {
+.incoming-display, .score {
     white-space: nowrap;
     font-weight: bold;
     color: #ddd;
     position:  absolute;
     left: 100px;
-    top: 300px;
     bottom: 100px;
+    width: 400px;
+}
+.incoming-display {
+    top: 300px;
+}
+.score {
+    top: 250px;
 }
 /* Right UI CSS */
 .instructions-label {

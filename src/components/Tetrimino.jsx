@@ -4,12 +4,12 @@ import { groupsOfBlocks } from "../utils/block";
 
 const box_size = 2;
 
-const Tetrimino = ({ controlRef, color, xInit, zInit, yInit, typeid}) => {
+const Tetrimino = ({ controlRef, color, xInit, zInit, typeid, top=true}) => {
 
   const blockGroup = groupsOfBlocks[typeid];
 
   return (
-    <group position={[xInit, 24, zInit]} ref={controlRef}>
+    <group position={[top ? xInit : 0, top ? 24: 0, top ? zInit : 0]} ref={controlRef}>
       {blockGroup.coords.map((position, index) => (
       <Box
         key={index}
