@@ -1,5 +1,5 @@
 import { Box, Outlines, Plane } from '@react-three/drei'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { DoubleSide } from 'three'
 import { useGameStore } from '../store/store'
 import Tetrimino from './Tetrimino'
@@ -7,6 +7,8 @@ import { generateRandomGroup } from '../utils/block'
 
 const Grid = ({size, divisions, color}) => {
   const isGame = useGameStore(state => state.isGame);
+  const setIsGame = useGameStore(state => state.setIsGame);
+  const setGameOver = useGameStore(state => state.setGameOver);
   const isPause = useGameStore(state => state.isPause);
   const currentBlock = useGameStore(state => state.currentBlock);
   const setCurrentBlock = useGameStore(state => state.setCurrentBlock);
@@ -18,6 +20,12 @@ const Grid = ({size, divisions, color}) => {
 
   const currentTetrimino = useRef();
   const fallInterval = useRef();
+
+  const [newBlock, setNewBlock] = useState(false);
+
+  const triggerNewBlock = () => {
+    setNewBlock(!newBlock);
+  }
   
   const gridImpact = useCallback((blockPos, tetriPos) => {
     
@@ -51,6 +59,17 @@ const Grid = ({size, divisions, color}) => {
   }, [removeFullLayers])
 
   useEffect(() => {
+    for (let i = 12; i < gridLayers.length; i++) {
+      if (gridLayers[i].length > 0) {
+        setIsGame();
+        setGameOver(true);
+      }
+    }
+    // INFO: handle scores and full layers clearing
+    handleFullLayers();
+  }, [gridLayers])
+
+  useEffect(() => {
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
       typeid: randomGroup.typeid,
@@ -64,6 +83,12 @@ const Grid = ({size, divisions, color}) => {
   useEffect(() => {
     // INFO: create new block on game begin or current block had fallen
     if (isGame) {
+      const newBlock = {
+        block: <Tetrimino controlRef={currentTetrimino} color={nextBlock.color} xInit={nextBlock.xInit} zInit={nextBlock.zInit} typeid={nextBlock.typeid} />,
+        color: nextBlock.color,
+        typeid: nextBlock.typeid
+      };
+      setCurrentBlock(newBlock);
       const randomGroup = generateRandomGroup();
       const newNextBlock = {
         typeid: randomGroup.typeid,
@@ -72,14 +97,8 @@ const Grid = ({size, divisions, color}) => {
         zInit: randomGroup.zInit,
       }
       setNextBlock(newNextBlock);
-      const newBlock = {
-        block: <Tetrimino controlRef={currentTetrimino} color={nextBlock.color} xInit={nextBlock.xInit} zInit={nextBlock.zInit} typeid={nextBlock.typeid} />,
-        color: nextBlock.color,
-        typeid: nextBlock.typeid
-      };
-      setCurrentBlock(newBlock);
     }
-  }, [isGame, setCurrentBlock, gridLayers]);
+  }, [isGame, setCurrentBlock, newBlock]);
   
 
   // INFO: tetrimino impact handling
@@ -113,12 +132,10 @@ const Grid = ({size, divisions, color}) => {
                 addFallenBlock(block, fallenLayer);
               }
             });
+            triggerNewBlock();
             break;
           }
         }
-
-        // INFO: handle scores and full layers clearing
-        handleFullLayers();
       }, 500)
     }
     return () => {
