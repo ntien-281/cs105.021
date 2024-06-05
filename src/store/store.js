@@ -13,7 +13,7 @@ export const useGameStore = create(
     isPause: false,
     isGame: false,
     score: 0,
-    gridLayers: [[],[],[],[],[],[],[],[],[],[],[],[]], // INFO: 12 layers, each layers is a 1d array, add blocks to these  planes as they've fallen, layers having 6x6 = 36 blocks (full) will be dropped and scored
+    gridLayers: [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]], // INFO: 12 layers, each layers is a 1d array, add blocks to these  planes as they've fallen, layers having 6x6 = 36 blocks (full) will be dropped and scored
     currentBlock: {
         block: null,
         color: "",
@@ -25,6 +25,11 @@ export const useGameStore = create(
       xInit: 0,
       zInit: 0,
     },
+    gameOver: false,
+    setGameOver: (value) =>
+      set((state) => {
+        state.gameOver = value;
+      }),
     setIsGame: () =>
       set((state) => {
         state.isGame = !state.isGame;
@@ -66,12 +71,13 @@ export const useGameStore = create(
       set((state) => {
         state.isPause = false;
         state.isGame = false;
-        state.gridLayers = [[],[],[],[],[],[],[],[],[],[],[],[]];
+        state.gridLayers = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         state.currentBlock = {
             block: null,
             color: "",
         };
         state.score = 0;
+        state.gameOver = false;
       }),
   }))
 );

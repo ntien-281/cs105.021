@@ -9,7 +9,7 @@ const Tetrimino = ({ controlRef, color, xInit, zInit, typeid, top=true}) => {
   const blockGroup = groupsOfBlocks[typeid];
 
   return (
-    <group position={[top ? xInit : 0, top ? 24: 0, top ? zInit : 0]} ref={controlRef}>
+    <group position={[top ? xInit : 0, top ? 28: 0, top ? zInit : 0]} ref={controlRef}>
       {blockGroup.coords.map((position, index) => (
       <Box
         key={index}
