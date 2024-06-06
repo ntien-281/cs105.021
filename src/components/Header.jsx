@@ -3,28 +3,10 @@
 import React from 'react'
 import { useGameStore } from '../store/store'
 
-const Header = () => {
+const Header = ({startPauseGame, resetClick}) => {
   const isGame = useGameStore(state => state.isGame)
   const isPause = useGameStore(state => state.isPause)
-  const setIsGame = useGameStore(state => state.setIsGame)
-  const setIsPause = useGameStore(state => state.setIsPause)
-  const resetGame = useGameStore(state => state.resetGame)
-
-  const startPauseGame = (event) => {
-    if (!isGame) {
-      setIsGame();
-      console.log("started");
-    }
-    else { // game in progress, only pause
-      setIsPause();
-      console.log("paused");
-    }
-    // setIsPause();
-  }
-  const resetClick = () => {
-    console.log("reseted");
-    resetGame();
-  }
+  
 
   return (
     <div className='header-wrapper'>
