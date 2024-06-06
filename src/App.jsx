@@ -9,6 +9,8 @@ import { Box, Outlines } from "@react-three/drei";
 import { useCallback, useEffect, useRef } from "react";
 import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
+import GUI from "lil-gui";
+import { roughness } from "three/examples/jsm/nodes/Nodes.js";
 
 // Game parameters
 const size = 12; // equal box size times 6
@@ -30,6 +32,8 @@ function App() {
   const removeFullLayers = useGameStore((state) => state.removeFullLayers);
   const nextBlock = useGameStore((state) => state.nextBlock);
   const setNextBlock = useGameStore((state) => state.setNextBlock);
+  const materialSettings = useGameStore((state) => state.materialSettings);
+  const setMaterialSettings = useGameStore((state) => state.setMaterialSettings);
 
   const currentTetrimino = useRef();
   const fallInterval = useRef();
@@ -160,6 +164,8 @@ function App() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGame, isPause, gridLayers]);
+
+  // INFO: Movement logic
   const takeMaxPosCube = (currentTetrimino, type) => {
     if (type == 1) {
       let max = currentTetrimino.current.children[0].position.z;
@@ -260,6 +266,7 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // INFO: Game trigger buttons
   const startPauseGame = (event) => {
     if (!isGame) {
       setIsGame();
@@ -279,6 +286,19 @@ function App() {
     console.log("reseted");
     resetGame();
   };
+
+  // INFO: Texture loader:
+  useEffect(() => {
+    let values = {...materialSettings};
+    const gui = new GUI({ width: 300 });
+    gui.add(values, 'roughness', 0, 1, 0.1).onFinishChange(value => setMaterialSettings({...materialSettings, roughness: value}));
+    gui.add(values, 'metalness', 0, 1, 0.1).onFinishChange(value => setMaterialSettings({...materialSettings, metalness: value}));
+
+    return () => {
+      gui.destroy();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [materialSettings]);
 
   return (
     <>

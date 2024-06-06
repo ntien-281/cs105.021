@@ -1,3 +1,4 @@
+import { metalness } from "three/examples/jsm/nodes/Nodes.js";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -25,10 +26,18 @@ export const useGameStore = create(
       xInit: 0,
       zInit: 0,
     },
+    materialSettings: {
+      roughness: 0,
+      metalness: 0,
+    },
     gameOver: false,
     setGameOver: (value) =>
       set((state) => {
         state.gameOver = value;
+      }),
+    setMaterialSettings: (value) =>
+      set((state) => {
+        state.materialSettings = value;
       }),
     setIsGame: () =>
       set((state) => {
