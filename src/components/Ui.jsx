@@ -1,5 +1,5 @@
 // TODO UI overlay, bên trái là incoming block(các block này có animation), bên phải là hướng dẫn điều khiển + navigation + ...
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useGameStore } from "../store/store";
 import { Canvas } from "@react-three/fiber";
 import Tetrimino from "./Tetrimino";
