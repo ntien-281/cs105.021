@@ -6,7 +6,7 @@ import Lights from "./components/Lights";
 import CameraController from "./components/CameraController";
 import { useGameStore } from "./store/store";
 import { Box, Outlines } from "@react-three/drei";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
 import GUI from "lil-gui";
@@ -287,7 +287,7 @@ function App() {
     resetGame();
   };
 
-  // INFO: Texture loader:
+  // INFO: Material settings:
   useEffect(() => {
     let values = {...materialSettings};
     const gui = new GUI({ width: 300 });

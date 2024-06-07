@@ -10,6 +10,23 @@ const Ui = () => {
   const nextBlock = useGameStore((state) => state.nextBlock);
   const gameOver = useGameStore((state) => state.gameOver);
   const resetGame = useGameStore((state) => state.resetGame);
+  const setTextureUrl = useGameStore((state) => state.setTextureUrl);
+
+  // INFO: Texture loader:
+  const createImageUrl = (buffer, type) => {
+    const blob = new Blob([buffer], { type })
+    const urlCreator = window.URL || window.webkitURL
+    const imageUrl = urlCreator.createObjectURL(blob)
+    console.log(imageUrl)
+    return imageUrl
+  }
+  const getTextureFile = async (e) => {
+    const file = e.target.files[0]
+    const { type } = file
+    const buffer = await file.arrayBuffer()
+    const imageUrl = createImageUrl(buffer, type)
+    setTextureUrl(imageUrl)
+  }
 
   const handleResetInput = (event) => {
     if (gameOver) {
@@ -64,6 +81,12 @@ const Ui = () => {
       </div>
       {/* Right UI */}
       <div className="instructions-label">
+        <div className="texture-input">
+          <label className="texture-input-btn">
+            Upload texture
+            <input type="file" onChange={(e) => getTextureFile(e)} />
+          </label>
+        </div>
         <ul>
           <li>
             <strong>Camera: </strong> <span>Kéo thả chuột</span>
