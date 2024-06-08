@@ -206,6 +206,52 @@ function App() {
       return min;
     }
   };
+  const checkCollision = useCallback((blockPos, tetriPos,type) => {
+    
+    const blockX =  blockPos.x + tetriPos.x - 1;
+    const blockY =  blockPos.y + tetriPos.y;
+    const blockZ =  blockPos.z + tetriPos.z - 1;
+    // console.log(tetriPos)
+    // console.log(blockX,blockY,blockZ)
+    const curLayer = gridLayers[(blockY - 1) / 2];
+    // console.log((blockY - 1) / 2)
+    console.log(gridLayers)
+    if (type == 1) {
+      for (let i = 0; i < curLayer.length; i++) {
+        let x = curLayer[i].position[0];
+        let z = curLayer[i].position[1];
+        if (blockX - 2 == x || blockZ - 2 == z) {
+          return true;
+        }
+      }
+      return false;
+    }
+    else if (type == 2) {
+      for (let i = 0; i < curLayer.length; i++) {
+        let x = curLayer[i].position[0];
+        let z = curLayer[i].position[1];
+        if (blockX + 2 == x || blockZ + 2 == z) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+  }, [gridLayers])
+  const rotateTetri = (currTetri,type) => {
+    const curChild = currTetri.current.children
+    console.log('Rotate')
+    if (type =='x') {
+      for (let i = 0; i < curChild.length; i++) {
+          const vectorZ = curChild[i].position.z - curChild[0].position.z
+          const vectorY = curChild[i].position.y - curChild[0].position.y
+          const newZ = vectorY
+          const newY = -vectorZ 
+          curChild[i].position.z = curChild[0].position.z + newZ
+          curChild[i].position.y = curChild[0].position.y + newY
+      }
+    }
+  }
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
     switch (event.key) {
