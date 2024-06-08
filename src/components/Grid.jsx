@@ -181,14 +181,15 @@ const Grid = ({size, divisions, color}) => {
     const blockX =  blockPos.x + tetriPos.x - 1;
     const blockY =  blockPos.y + tetriPos.y;
     const blockZ =  blockPos.z + tetriPos.z - 1;
-    console.log(tetriPos)
-    console.log(blockX,blockY,blockZ)
+    // console.log(tetriPos)
+    // console.log(blockX,blockY,blockZ)
     const curLayer = gridLayers[(blockY - 1) / 2];
-    console.log(curLayer)
+    // console.log((blockY - 1) / 2)
+    console.log(gridLayers)
     if (type == 1) {
       for (let i = 0; i < curLayer.length; i++) {
         let x = curLayer[i].position[0];
-        let z = curLayer[i].position[2];
+        let z = curLayer[i].position[1];
         if (blockX - 2 == x || blockZ - 2 == z) {
           return true;
         }
@@ -198,7 +199,7 @@ const Grid = ({size, divisions, color}) => {
     else if (type == 2) {
       for (let i = 0; i < curLayer.length; i++) {
         let x = curLayer[i].position[0];
-        let z = curLayer[i].position[2];
+        let z = curLayer[i].position[1];
         if (blockX + 2 == x || blockZ + 2 == z) {
           return true;
         }
@@ -207,13 +208,27 @@ const Grid = ({size, divisions, color}) => {
     }
     
   }, [gridLayers])
+  const rotateTetri = (currTetri,type) => {
+    const curChild = currTetri.current.children
+    console.log('Rotate')
+    if (type =='x') {
+      for (let i = 0; i < curChild.length; i++) {
+          const vectorZ = curChild[i].position.z - curChild[0].position.z
+          const vectorY = curChild[i].position.y - curChild[0].position.y
+          const newZ = vectorY
+          const newY = -vectorZ 
+          curChild[i].position.z = curChild[0].position.z + newZ
+          curChild[i].position.y = curChild[0].position.y + newY
+      }
+    }
+  }
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
     const posTetri = currentTetrimino.current.position
     switch (event.key) {
       case 'a':
         const minPosX = takeMinPosCube(currentTetrimino,2)
-        if (minPosX.x + posTetri.x - 3 >= 0 && checkCollision(minPosX,currentTetrimino.current.position,1) == false) {
+        if (minPosX.x + posTetri.x - 3 >= 0) {
           posTetri.x -= 2;
           
         }
@@ -234,9 +249,10 @@ const Grid = ({size, divisions, color}) => {
         const maxPosZ = takeMaxPosCube(currentTetrimino,1)
         if (maxPosZ.z + posTetri.z + 1 <= 10) {
           posTetri.z += 2;
-        }
+        } 
         break;
       case 'q':
+        rotateTetri(currentTetrimino,'x')
         break;
       case 'e':
         break;
