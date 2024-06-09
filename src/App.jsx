@@ -11,6 +11,7 @@ import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
 import GUI from "lil-gui";
 import { roughness } from "three/examples/jsm/nodes/Nodes.js";
+import { useSpring, animated } from "@react-spring/web";
 
 // Game parameters
 const size = 12; // equal box size times 6
@@ -92,7 +93,7 @@ function App() {
     //   return false;
     // }
     
-  }, [gridLayers])
+  }, [gridLayers]);
   const handleFullLayers = useCallback(() => {
     // TODO: animation here
 
