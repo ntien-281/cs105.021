@@ -53,7 +53,7 @@ function App() {
       if (llIndex < 0) {
         return false;
       }
-      console.log(gridLayers);
+      // console.log(gridLayers);
       const lowerLayer = gridLayers[llIndex];
       // console.log("lower layer: ", lowerLayer);
       for (let i = 0; i < lowerLayer.length; i++) {
@@ -266,20 +266,20 @@ function App() {
     switch (event.key) {
       case "a":
         if (
-          takeMinPosCube(currentTetrimino, 2) +
+          takeMinPosCube(currentTetrimino, 2).x +
             position[0] -
             3 >=
           0
         ) {
           const [x, y, z] = position;
           setPosition([x - 2, y, z]);
-          // console.log(position);
+          console.log(position);
         }
         checkCollision(takeMinPosCube(curTetri,2),curPos);
         break;
       case "d":
         if (
-          takeMaxPosCube(currentTetrimino, 2) +
+          takeMaxPosCube(currentTetrimino, 2).x +
             position[0] +
             1 <=
           10
@@ -291,7 +291,7 @@ function App() {
         break;
       case "w":
         if (
-          takeMinPosCube(currentTetrimino, 1) +
+          takeMinPosCube(currentTetrimino, 1).z +
             position[2] -
             3 >=
           0
@@ -303,7 +303,7 @@ function App() {
         break;
       case "s":
         if (
-          takeMaxPosCube(currentTetrimino, 1) +
+          takeMaxPosCube(currentTetrimino, 1).z +
             position[2] +
             1 <=
           10
