@@ -129,7 +129,7 @@ function App() {
         const [x, y, z] = position;
         setPosition([x, y - 2, z]);
         const currTetri = currentTetrimino.current;
-        // console.log("falling");
+        console.log("falling");
         // INFO: Check if any block in tetrimino touches the floor
         // or another block in grid layers
         for (let i = 0; i < currTetri.children.length; i++) {
@@ -157,12 +157,12 @@ function App() {
     }
     return () => {
       if (fallInterval.current) {
-        // console.log("clearing interval");
+        console.log("clearing interval");
         clearInterval(fallInterval.current);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGame, isPause, gridLayers, nextBlock, position]);
+  }, [isGame, isPause, gridLayers, currentBlock, nextBlock, position]);
 
   // INFO: Movement logic
   const takeMaxPosCube = (currentTetrimino, type) => {
