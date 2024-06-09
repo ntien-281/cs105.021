@@ -48,7 +48,7 @@ function App() {
       if (llIndex < 0) {
         return false;
       }
-
+      console.log(gridLayers);
       const lowerLayer = gridLayers[llIndex];
       // console.log("lower layer: ", lowerLayer);
       for (let i = 0; i < lowerLayer.length; i++) {
@@ -63,7 +63,36 @@ function App() {
     },
     [gridLayers]
   );
-
+  const checkCollision = useCallback((blockPos, tetriPos,type) => {
+    
+    const blockX =  blockPos.x + tetriPos.x - 1;
+    const blockY =  blockPos.y + tetriPos.y;
+    const blockZ =  blockPos.z + tetriPos.z - 1;
+    const layerIndex = (blockY - 1) / 2 - 1;
+    const curLayer = gridLayers[layerIndex];
+    console.log(gridLayers);
+    // if (type == 1) {
+    //   for (let i = 0; i < curLayer.length; i++) {
+    //     let x = curLayer[i].position[0];
+    //     let z = curLayer[i].position[1];
+    //     if (blockX - 2 == x || blockZ - 2 == z) {
+    //       return true;
+    //     }
+    //   }
+    //   return false;
+    // }
+    // else if (type == 2) {
+    //   for (let i = 0; i < curLayer.length; i++) {
+    //     let x = curLayer[i].position[0];
+    //     let z = curLayer[i].position[1];
+    //     if (blockX + 2 == x || blockZ + 2 == z) {
+    //       return true;
+    //     }
+    //   }
+    //   return false;
+    // }
+    
+  }, [gridLayers])
   const handleFullLayers = useCallback(() => {
     // TODO: animation here
 
@@ -95,7 +124,7 @@ function App() {
   }, [isGame]);
 
   const generateNewBlock = () => {
-    // INFO: foward next block to current block
+    // INFO: forward next block to current block
     const newBlock = {
       block: (
         <Tetrimino
@@ -111,6 +140,8 @@ function App() {
       typeid: nextBlock.typeid,
     };
     setCurrentBlock(newBlock);
+  
+    // Generate a new next block
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
       typeid: randomGroup.typeid,
@@ -119,9 +150,7 @@ function App() {
       zInit: randomGroup.zInit,
     };
     setNextBlock(newNextBlock);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  };
-
+  };  
   // INFO: tetrimino impact handling
   useEffect(() => {
     if (!isGame) {
@@ -167,135 +196,97 @@ function App() {
 
   // INFO: Movement logic
   const takeMaxPosCube = (currentTetrimino, type) => {
+    const curChild = currentTetrimino.current.children;
     if (type == 1) {
-      let max = currentTetrimino.current.children[0].position.z;
-      for (let i = 0; i < currentTetrimino.current.children.length; i++) {
-        if (max < currentTetrimino.current.children[i].position.z) {
-          max = currentTetrimino.current.children[i].position.z;
+      let max = curChild[0].position.z;
+      let max_posZ = curChild[0].position
+      for (let i = 0; i < curChild.length; i++) {
+        if (max < curChild[i].position.z) {
+          max = curChild[i].position.z;
+          max_posZ = curChild[i].position;
         }
       }
-      return max;
+      return max_posZ;
     } else {
-      let max = currentTetrimino.current.children[0].position.x;
-      for (let i = 0; i < currentTetrimino.current.children.length; i++) {
-        if (max < currentTetrimino.current.children[i].position.x) {
-          max = currentTetrimino.current.children[i].position.x;
+      let max =curChild[0].position.x;
+      let max_posX = curChild[0].position
+      for (let i = 0; i < curChild.length; i++) {
+        if (max < curChild[i].position.x) {
+          max = curChild[i].position.x;
+          max_posX = curChild[i].position
         }
       }
-      return max;
+      return max_posX;
     }
   };
 
   // take min position of cube in blocks
   const takeMinPosCube = (currentTetrimino, type) => {
+    const curChild = currentTetrimino.current.children;
     if (type == 1) {
-      let min = currentTetrimino.current.children[0].position.z;
-      for (let i = 0; i < currentTetrimino.current.children.length; i++) {
-        if (min > currentTetrimino.current.children[i].position.z) {
-          min = currentTetrimino.current.children[i].position.z;
+      let min = curChild[0].position.z;
+      let min_posZ = curChild[0].position;
+      for (let i = 0; i < curChild.length; i++) {
+        if (min > curChild[i].position.z) {
+          min = curChild[i].position.z;
+          min_posZ = curChild[i].position;
         }
       }
-      return min;
+      return min_posZ;
     } else {
-      let min = currentTetrimino.current.children[0].position.x;
-      for (let i = 0; i < currentTetrimino.current.children.length; i++) {
-        if (min > currentTetrimino.current.children[i].position.x) {
-          min = currentTetrimino.current.children[i].position.x;
+      let min = curChild[0].position.x;
+      let min_posX = curChild[0].position;
+      for (let i = 0; i < curChild.length; i++) {
+        if (min > curChild[i].position.x) {
+          min = curChild[i].position.x;
+          min_posX = curChild[i].position;
         }
       }
-      return min;
+      return min_posX;
     }
   };
-  const checkCollision = useCallback((blockPos, tetriPos,type) => {
-    
-    const blockX =  blockPos.x + tetriPos.x - 1;
-    const blockY =  blockPos.y + tetriPos.y;
-    const blockZ =  blockPos.z + tetriPos.z - 1;
-    // console.log(tetriPos)
-    // console.log(blockX,blockY,blockZ)
-    const curLayer = gridLayers[(blockY - 1) / 2];
-    // console.log((blockY - 1) / 2)
-    console.log(gridLayers)
-    if (type == 1) {
-      for (let i = 0; i < curLayer.length; i++) {
-        let x = curLayer[i].position[0];
-        let z = curLayer[i].position[1];
-        if (blockX - 2 == x || blockZ - 2 == z) {
-          return true;
-        }
-      }
-      return false;
-    }
-    else if (type == 2) {
-      for (let i = 0; i < curLayer.length; i++) {
-        let x = curLayer[i].position[0];
-        let z = curLayer[i].position[1];
-        if (blockX + 2 == x || blockZ + 2 == z) {
-          return true;
-        }
-      }
-      return false;
-    }
-    
-  }, [gridLayers])
-  const rotateTetri = (currTetri,type) => {
-    const curChild = currTetri.current.children
-    console.log('Rotate')
-    if (type =='x') {
+  const rotateTetri = (currTetri, type) => {
+    const curChild = currTetri.current.children;
+    console.log('Rotate');
+    if (type == 'x') {
       for (let i = 0; i < curChild.length; i++) {
-          const vectorZ = curChild[i].position.z - curChild[0].position.z
-          const vectorY = curChild[i].position.y - curChild[0].position.y
-          const newZ = vectorY
-          const newY = -vectorZ 
-          curChild[i].position.z = curChild[0].position.z + newZ
-          curChild[i].position.y = curChild[0].position.y + newY
+        const vectorZ = curChild[i].position.z - curChild[0].position.z;
+        const vectorY = curChild[i].position.y - curChild[0].position.y;
+        curChild[i].position.z = curChild[0].position.z + vectorY;
+        curChild[i].position.y = curChild[0].position.y - vectorZ;
       }
     }
-  }
+  };
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const curTetri = currentTetrimino;
+    const curPos = curTetri.current.position;
     switch (event.key) {
       case "a":
-        if (
-          takeMinPosCube(currentTetrimino, 2) +
-            currentTetrimino.current.position.x -
-            3 >=
-          0
-        ) {
-          currentTetrimino.current.position.x -= 2;
+        if (takeMinPosCube(curTetri, 2).x + curPos.x -3 >= 0) {
+          curPos.x -= 2;
         }
+        checkCollision(takeMinPosCube(curTetri,2),curPos);
         break;
       case "d":
-        if (
-          takeMaxPosCube(currentTetrimino, 2) +
-            currentTetrimino.current.position.x +
-            1 <=
-          10
-        ) {
-          currentTetrimino.current.position.x += 2;
+        if (takeMaxPosCube(curTetri, 2).x + curPos.x + 1 <= 10) {
+          curPos.x += 2;
         }
         break;
       case "w":
-        if (
-          takeMinPosCube(currentTetrimino, 1) +
-            currentTetrimino.current.position.z -
-            3 >=
-          0
-        ) {
-          currentTetrimino.current.position.z -= 2;
+        if (takeMinPosCube(curTetri, 1).z + curPos.z - 3 >= 0) {
+          curPos.z -= 2;
         }
         break;
       case "s":
-        if (
-          takeMaxPosCube(currentTetrimino, 1) +
-            currentTetrimino.current.position.z +
-            1 <=
-          10
-        ) {
-          currentTetrimino.current.position.z += 2;
+        if (takeMaxPosCube(curTetri, 1).z + curPos.z + 1 <= 10) {
+          curPos.z += 2;
         }
         break;
       case "q":
+        rotateTetri(curTetri,'x')
         break;
       case "e":
         break;
@@ -303,7 +294,6 @@ function App() {
         break;
     }
   };
-
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
