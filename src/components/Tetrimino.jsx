@@ -5,13 +5,15 @@ import { useGameStore } from "../store/store";
 
 const box_size = 2;
 
-const Tetrimino = ({ controlRef, color, xInit, zInit, typeid, top=true}) => {
+const Tetrimino = ({ controlRef, color, position, typeid}) => {
 
   const blockGroup = groupsOfBlocks[typeid];
   const materialSettings = useGameStore(state => state.materialSettings);
 
+  // console.log(position);
+
   return (
-    <group position={[top ? xInit : 0, top ? 28: 0, top ? zInit : 0]} ref={controlRef}>
+    <group position={position ? position :[0,0,0]} ref={controlRef}>
       {blockGroup.coords.map((position, index) => (
       <Box
         key={index}

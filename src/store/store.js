@@ -16,7 +16,6 @@ export const useGameStore = create(
     score: 0,
     gridLayers: [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]], // INFO: 12 layers, each layers is a 1d array, add blocks to these  planes as they've fallen, layers having 6x6 = 36 blocks (full) will be dropped and scored
     currentBlock: {
-        block: null,
         color: "",
         typeid: null,
     },

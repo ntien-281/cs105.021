@@ -39,7 +39,6 @@ const Ui = () => {
                 controlRef={null}
                 color={nextBlock.color}
                 typeid={nextBlock.typeid}
-                top={false}
               />
             </AnimatedTetri>
             <directionalLight
