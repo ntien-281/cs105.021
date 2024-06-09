@@ -14,6 +14,7 @@ export const useGameStore = create(
     isPause: false,
     isGame: false,
     score: 0,
+    textureUrl: null,
     gridLayers: [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]], // INFO: 12 layers, each layers is a 1d array, add blocks to these  planes as they've fallen, layers having 6x6 = 36 blocks (full) will be dropped and scored
     currentBlock: {
         color: "",
@@ -37,6 +38,10 @@ export const useGameStore = create(
     setMaterialSettings: (value) =>
       set((state) => {
         state.materialSettings = value;
+      }),
+    setTextureUrl: (value) =>
+      set((state) => {
+        state.textureUrl = value;
       }),
     setIsGame: () =>
       set((state) => {

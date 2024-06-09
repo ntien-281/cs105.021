@@ -3,6 +3,10 @@ html {
     font-family: 'Courier New', Courier, monospace;
     user-select: none;
 }
+button {
+    font: inherit;
+    font-weight: 600;
+}
 
 #canvas-container {
     width: 100vw;
@@ -37,7 +41,7 @@ html {
     align-items: center;
     justify-content: space-evenly;
 }
-.header-button-wrapper > div > button {
+.header-button-wrapper > div > button, .texture-input-btn {
     padding: 16px 24px;
     font-size: 16px;
     cursor: pointer;
@@ -48,7 +52,7 @@ html {
     color: #ddd;
     background-color: transparent;
 }
-.header-button-wrapper > div > button:hover {
+.header-button-wrapper > div > button:hover, .texture-input-btn:hover {
     background-color: #50C878;
     color: #1F1C18;
 }
@@ -83,7 +87,6 @@ html {
         list-style-type: none;
         padding-left: 0;
         margin: 10px 0;
-        
         li {
             margin: 10px 0;
 
@@ -124,4 +127,14 @@ html {
     line-height: 100vh;
     cursor: pointer; /* Add a pointer on hover */
     color: white;
+}
+
+.texture-input {
+    color: white;
+    font-size: 0.95em;
+    font-weight: 600;
+    margin-bottom: 40px;
+}
+.texture-input input[type="file"] {
+    display: none;
 }
