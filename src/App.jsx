@@ -290,7 +290,7 @@ function App() {
     resetGame();
   };
 
-  // INFO: Texture loader:
+  // INFO: Material settings:
   useEffect(() => {
     let values = { ...materialSettings };
     const gui = new GUI({ width: 300 });
