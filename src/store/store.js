@@ -33,7 +33,6 @@ export const useGameStore = create(
             [],
         ], // INFO: 12 layers, each layers is a 1d array, add blocks to these  planes as they've fallen, layers having 6x6 = 36 blocks (full) will be dropped and scored
         currentBlock: {
-            block: null,
             color: "",
             typeid: null,
         },
@@ -86,6 +85,7 @@ export const useGameStore = create(
                         state.score += 10;
                     }
                 }
+
                 state.gridLayers = newLayers;
             }),
         setCurrentBlock: (block) =>
