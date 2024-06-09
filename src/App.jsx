@@ -121,6 +121,7 @@ function App() {
   // INFO: tetrimino impact handling
   useEffect(() => {
     if (!isGame) {
+      // console.log("clearing interval");
       clearInterval(fallInterval);
     }
     if (isGame && !isPause && currentBlock.typeid) {
@@ -128,7 +129,7 @@ function App() {
         const [x, y, z] = position;
         setPosition([x, y - 2, z]);
         const currTetri = currentTetrimino.current;
-        console.log(position);
+        console.log("falling");
         // INFO: Check if any block in tetrimino touches the floor
         // or another block in grid layers
         for (let i = 0; i < currTetri.children.length; i++) {
@@ -155,10 +156,13 @@ function App() {
       }, 500);
     }
     return () => {
-      clearInterval(fallInterval.current);
+      if (fallInterval.current) {
+        console.log("clearing interval");
+        clearInterval(fallInterval.current);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGame, isPause, position]);
+  }, [isGame, isPause, gridLayers, currentBlock, nextBlock, position]);
 
   // INFO: Movement logic
   const takeMaxPosCube = (currentTetrimino, type) => {
@@ -213,7 +217,7 @@ function App() {
         ) {
           const [x, y, z] = position;
           setPosition([x - 2, y, z]);
-          console.log(position);
+          // console.log(position);
         }
         break;
       case "d":
@@ -225,7 +229,7 @@ function App() {
         ) {
           const [x, y, z] = position;
           setPosition([x + 2, y, z]);
-          console.log(position);
+          // console.log(position);
         }
         break;
       case "w":
@@ -237,7 +241,7 @@ function App() {
         ) {
           const [x, y, z] = position;
           setPosition([x, y, z - 2]);
-          console.log(position);
+          // console.log(position);
         }
         break;
       case "s":
@@ -249,7 +253,7 @@ function App() {
         ) {
           const [x, y, z] = position;
           setPosition([x, y, z + 2]);
-          console.log(position);
+          // console.log(position);
         }
         break;
       case "q":
