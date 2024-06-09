@@ -124,7 +124,7 @@ function App() {
       // console.log("clearing interval");
       clearInterval(fallInterval);
     }
-    if (isGame && !isPause && currentBlock.typeid) {
+    if (isGame && !isPause) {
       fallInterval.current = setInterval(() => {
         const [x, y, z] = position;
         setPosition([x, y - 2, z]);
