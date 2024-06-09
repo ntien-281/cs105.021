@@ -33,16 +33,20 @@ function App() {
   const nextBlock = useGameStore((state) => state.nextBlock);
   const setNextBlock = useGameStore((state) => state.setNextBlock);
   const materialSettings = useGameStore((state) => state.materialSettings);
-  const setMaterialSettings = useGameStore((state) => state.setMaterialSettings);
+  const setMaterialSettings = useGameStore(
+    (state) => state.setMaterialSettings
+  );
 
   const currentTetrimino = useRef();
   const fallInterval = useRef();
 
+  const [position, setPosition] = useState([0, 0, 0]);
+
   const gridImpact = useCallback(
     (blockPos, tetriPos) => {
-      const blockX = blockPos.x + tetriPos.x;
-      const blockY = blockPos.y + tetriPos.y;
-      const blockZ = blockPos.z + tetriPos.z;
+      const blockX = blockPos.x + position[0];
+      const blockY = blockPos.y + position[1];
+      const blockZ = blockPos.z + position[2];
 
       const llIndex = (blockY - 1) / 2 - 1;
       if (llIndex < 0) {
@@ -61,7 +65,7 @@ function App() {
       }
       return false;
     },
-    [gridLayers]
+    [gridLayers, position]
   );
 
   const handleFullLayers = useCallback(() => {
@@ -96,17 +100,9 @@ function App() {
 
   const generateNewBlock = () => {
     // INFO: foward next block to current block
+    console.log("generating new block");
+    setPosition([nextBlock.xInit, 28, nextBlock.zInit]);
     const newBlock = {
-      block: (
-        <Tetrimino
-          controlRef={currentTetrimino}
-          color={nextBlock.color}
-          xInit={nextBlock.xInit}
-          zInit={nextBlock.zInit}
-          typeid={nextBlock.typeid}
-          top={true}
-        />
-      ),
       color: nextBlock.color,
       typeid: nextBlock.typeid,
     };
@@ -127,26 +123,25 @@ function App() {
     if (!isGame) {
       clearInterval(fallInterval);
     }
-    if (isGame && !isPause && currentBlock.block) {
+    if (isGame && !isPause && currentBlock.typeid) {
       fallInterval.current = setInterval(() => {
-        currentTetrimino.current.position.y -= 2;
-
+        const [x, y, z] = position;
+        setPosition([x, y - 2, z]);
         const currTetri = currentTetrimino.current;
-
+        console.log(position);
         // INFO: Check if any block in tetrimino touches the floor
         // or another block in grid layers
         for (let i = 0; i < currTetri.children.length; i++) {
           let currChildPos = currTetri.children[i].position;
-          let currTetriPos = currTetri.position;
-          let fallenLayer = (currTetriPos.y + currChildPos.y - 1) / 2;
-          if (fallenLayer == 0 || gridImpact(currChildPos, currTetriPos)) {
+          let fallenLayer = (position[1] + currChildPos.y - 1) / 2;
+          if (fallenLayer == 0 || gridImpact(currChildPos, position)) {
             currTetri.children.forEach((child) => {
-              let fallenLayer = (currTetriPos.y + child.position.y - 1) / 2;
+              let fallenLayer = (position[1] + child.position.y - 1) / 2;
               if (fallenLayer >= 0) {
                 const block = {
                   position: [
-                    child.position.x + currTetriPos.x,
-                    child.position.z + currTetriPos.z,
+                    child.position.x + position[0],
+                    child.position.z + position[2],
                   ],
                   color: child.color,
                 };
@@ -163,7 +158,7 @@ function App() {
       clearInterval(fallInterval.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGame, isPause, gridLayers]);
+  }, [isGame, isPause, position]);
 
   // INFO: Movement logic
   const takeMaxPosCube = (currentTetrimino, type) => {
@@ -212,41 +207,49 @@ function App() {
       case "a":
         if (
           takeMinPosCube(currentTetrimino, 2) +
-            currentTetrimino.current.position.x -
+            position[0] -
             3 >=
           0
         ) {
-          currentTetrimino.current.position.x -= 2;
+          const [x, y, z] = position;
+          setPosition([x - 2, y, z]);
+          console.log(position);
         }
         break;
       case "d":
         if (
           takeMaxPosCube(currentTetrimino, 2) +
-            currentTetrimino.current.position.x +
+            position[0] +
             1 <=
           10
         ) {
-          currentTetrimino.current.position.x += 2;
+          const [x, y, z] = position;
+          setPosition([x + 2, y, z]);
+          console.log(position);
         }
         break;
       case "w":
         if (
           takeMinPosCube(currentTetrimino, 1) +
-            currentTetrimino.current.position.z -
+            position[2] -
             3 >=
           0
         ) {
-          currentTetrimino.current.position.z -= 2;
+          const [x, y, z] = position;
+          setPosition([x, y, z - 2]);
+          console.log(position);
         }
         break;
       case "s":
         if (
           takeMaxPosCube(currentTetrimino, 1) +
-            currentTetrimino.current.position.z +
+            position[2] +
             1 <=
           10
         ) {
-          currentTetrimino.current.position.z += 2;
+          const [x, y, z] = position;
+          setPosition([x, y, z + 2]);
+          console.log(position);
         }
         break;
       case "q":
@@ -264,7 +267,7 @@ function App() {
       window.removeEventListener("keydown", handleKeyDown);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [position]);
 
   // INFO: Game trigger buttons
   const startPauseGame = (event) => {
@@ -289,10 +292,18 @@ function App() {
 
   // INFO: Material settings:
   useEffect(() => {
-    let values = {...materialSettings};
+    let values = { ...materialSettings };
     const gui = new GUI({ width: 300 });
-    gui.add(values, 'roughness', 0, 1, 0.1).onFinishChange(value => setMaterialSettings({...materialSettings, roughness: value}));
-    gui.add(values, 'metalness', 0, 1, 0.1).onFinishChange(value => setMaterialSettings({...materialSettings, metalness: value}));
+    gui
+      .add(values, "roughness", 0, 1, 0.1)
+      .onFinishChange((value) =>
+        setMaterialSettings({ ...materialSettings, roughness: value })
+      );
+    gui
+      .add(values, "metalness", 0, 1, 0.1)
+      .onFinishChange((value) =>
+        setMaterialSettings({ ...materialSettings, metalness: value })
+      );
 
     return () => {
       gui.destroy();
@@ -313,7 +324,14 @@ function App() {
           <Lights />
 
           {/* Current tetrimino */}
-          {isGame && !gameOver && currentBlock.block}
+          {(isGame && !gameOver) && (
+            <Tetrimino
+              controlRef={currentTetrimino}
+              color={currentBlock.color}
+              position={position}
+              typeid={currentBlock.typeid}
+            />
+          )}
 
           <Grid color={color} divisions={divisions} size={size} />
           {/* Fallen blocks */}
