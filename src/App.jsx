@@ -68,36 +68,6 @@ function App() {
     },
     [gridLayers, position]
   );
-  const checkCollision = useCallback((blockPos, tetriPos,type) => {
-    
-    const blockX =  blockPos.x + tetriPos.x - 1;
-    const blockY =  blockPos.y + tetriPos.y;
-    const blockZ =  blockPos.z + tetriPos.z - 1;
-    const layerIndex = (blockY - 1) / 2 - 1;
-    const curLayer = gridLayers[layerIndex];
-    console.log(gridLayers);
-    // if (type == 1) {
-    //   for (let i = 0; i < curLayer.length; i++) {
-    //     let x = curLayer[i].position[0];
-    //     let z = curLayer[i].position[1];
-    //     if (blockX - 2 == x || blockZ - 2 == z) {
-    //       return true;
-    //     }
-    //   }
-    //   return false;
-    // }
-    // else if (type == 2) {
-    //   for (let i = 0; i < curLayer.length; i++) {
-    //     let x = curLayer[i].position[0];
-    //     let z = curLayer[i].position[1];
-    //     if (blockX + 2 == x || blockZ + 2 == z) {
-    //       return true;
-    //     }
-    //   }
-    //   return false;
-    // }
-    
-  }, [gridLayers]);
   const handleFullLayers = useCallback(() => {
     // TODO: animation here
 
@@ -257,6 +227,43 @@ function App() {
       }
     }
   };
+  const checkCollision = (curTetri,gridLayers,position,difX,difZ) => {
+    const curChildren = curTetri.current.children;
+    let check = 0;
+    const Y =  1 + position[1];
+    const layerIndex = (Y - 1) / 2;
+    const curLayer = gridLayers[layerIndex];
+    for (let i = 0; i < curLayer.length; i++) {
+      let x = curLayer[i].position[0];
+      let z = curLayer[i].position[1];
+      for (let i = 0;i < curChildren.length;i++) {
+        let childPos = curChildren[i].position
+        let blockY = childPos.y + position[1];
+        if (blockY == Y) {
+          let blockX = childPos.x + position[0];
+          let blockZ = childPos.z + position[2];
+          if (blockX + difX == x && blockZ +difZ == z)
+            check = 1;
+        }
+      }
+    }
+    const aboveLayer = gridLayers[layerIndex + 1];
+    for (let i = 0; i < aboveLayer.length; i++) {
+      let x_above = aboveLayer[i].position[0];
+      let z_above = aboveLayer[i].position[1];
+      for (let i = 0; i < curChildren.length;i++) {
+        let childPos = curChildren[i].position
+        let blockY = childPos.y + position[1];
+        if (blockY == Y + 2) {
+          let blockX = childPos.x + position[0];
+          let blockZ = childPos.z + position[2];
+          if (blockX + difX == x_above && blockZ + difZ == z_above)
+            check = 1;
+        }
+      }
+    }
+    return check;
+  }
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
     event.preventDefault();
@@ -265,52 +272,28 @@ function App() {
     const curPos = curTetri.current.position;
     switch (event.key) {
       case "a":
-        if (
-          takeMinPosCube(currentTetrimino, 2).x +
-            position[0] -
-            3 >=
-          0
-        ) {
+        if (takeMinPosCube(currentTetrimino, 2).x + position[0] - 3 >= 0 && checkCollision(curTetri,gridLayers,position,-2,0) == 0) {
           const [x, y, z] = position;
           setPosition([x - 2, y, z]);
-          console.log(position);
         }
-        checkCollision(takeMinPosCube(curTetri,2),curPos);
         break;
       case "d":
-        if (
-          takeMaxPosCube(currentTetrimino, 2).x +
-            position[0] +
-            1 <=
-          10
-        ) {
+        if (takeMaxPosCube(currentTetrimino, 2).x + position[0] + 1 <= 10 && checkCollision(curTetri,gridLayers,position,2,0) == 0) {
           const [x, y, z] = position;
           setPosition([x + 2, y, z]);
-          // console.log(position);
         }
         break;
       case "w":
-        if (
-          takeMinPosCube(currentTetrimino, 1).z +
-            position[2] -
-            3 >=
-          0
-        ) {
+        if (takeMinPosCube(currentTetrimino, 1).z + position[2] - 3 >= 0 && checkCollision(curTetri,gridLayers,position,0,-2) == 0) {
           const [x, y, z] = position;
           setPosition([x, y, z - 2]);
-          // console.log(position);
         }
         break;
       case "s":
         if (
-          takeMaxPosCube(currentTetrimino, 1).z +
-            position[2] +
-            1 <=
-          10
-        ) {
+          takeMaxPosCube(currentTetrimino, 1).z + position[2] + 1 <= 10 && checkCollision(curTetri,gridLayers,position,0,2) == 0) {
           const [x, y, z] = position;
           setPosition([x, y, z + 2]);
-          // console.log(position);
         }
         break;
       case "q":
