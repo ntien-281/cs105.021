@@ -119,15 +119,18 @@ button {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+    background-color: rgba(0, 0, 0, 0.822); /* Black background with opacity */
     z-index: 400; /* Specify a stack order in case you're using a different order for other elements */
     font-size: 52px;
     font-weight: 800;
     text-align: center;
     line-height: 100vh;
-    cursor: pointer; /* Add a pointer on hover */
     color: white;
 }
+
+.overlay strong {
+    display: block;
+  }
 
 .texture-input {
     color: white;
@@ -139,18 +142,4 @@ button {
     display: none;
 }
 
-@keyframes fadeOut {
-    0% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-  }
-  
-  .layer-remove {
-    animation: fadeOut 0.5s forwards;
-  }
   

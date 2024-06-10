@@ -13,6 +13,7 @@ export const useGameStore = create(
         isPause: false,
         isGame: false,
         score: 0,
+        isRemoved: false,
         textureUrl: null,
         gridLayers: [
             [],
@@ -87,8 +88,8 @@ export const useGameStore = create(
                         state.score += 10;
                     }
                 }
-
                 state.gridLayers = newLayers;
+                state.isRemoved = true;
             }),
         setCurrentBlock: (block) =>
             set((state) => {
