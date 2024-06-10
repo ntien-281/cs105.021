@@ -5,13 +5,10 @@ import Header from "./components/Header";
 import Lights from "./components/Lights";
 import CameraController from "./components/CameraController";
 import { useGameStore } from "./store/store";
-import { Box, Outlines } from "@react-three/drei";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
 import GUI from "lil-gui";
-import { roughness } from "three/examples/jsm/nodes/Nodes.js";
-import { useSpring, animated } from "@react-spring/web";
 import { groupsOfBlocks } from "./utils/block";
 import FallenCubes from "./components/FallenCubes";
 
@@ -22,7 +19,6 @@ const color = "gray";
 
 function App() {
   const isGame = useGameStore((state) => state.isGame);
-  const isRemoved = useGameStore((state) => state.isRemoved);
   const setIsGame = useGameStore((state) => state.setIsGame);
   const gameOver = useGameStore((state) => state.gameOver);
   const setGameOver = useGameStore((state) => state.setGameOver);
@@ -44,7 +40,7 @@ function App() {
   );
   const currentTetrimino = useRef();
   const fallInterval = useRef();
-  const bgm = useRef(new Audio('/src/assets/BGM.mp3'));
+  const bgm = useRef(new Audio("/src/assets/BGM.mp3"));
 
   const [position, setPosition] = useState([0, 0, 0]); // Tetri position
   const [blocks, setBlocks] = useState([]); // Array of tetri's cubes' positions => for rotation (changing cubes position)
@@ -78,11 +74,11 @@ function App() {
   );
 
   const onAnimationComplete = (fullI) => {
-    fullI.forEach(i => {
+    fullI.forEach((i) => {
       console.log("removing full");
       removeFullLayer(i);
     });
-  }
+  };
 
   const handleFullLayers = async () => {
     // TODO: animation here
@@ -103,7 +99,7 @@ function App() {
     }
     // setFullIndexes([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }
+  };
 
   useEffect(() => {
     for (let i = 12; i < gridLayers.length; i++) {
@@ -119,10 +115,10 @@ function App() {
 
   useEffect(() => {
     if (gameOver) {
-      const audio = new Audio('/src/assets/gameOver.mp3');
+      const audio = new Audio("/src/assets/gameOver.mp3");
       audio.play();
     }
-  }, [gameOver]);  
+  }, [gameOver]);
 
   useEffect(() => {
     const randomGroup = generateRandomGroup();
@@ -144,10 +140,9 @@ function App() {
       color: nextBlock.color,
       typeid: nextBlock.typeid,
     };
-    // TODO: revert dev changes
     setBlocks(groupsOfBlocks[nextBlock.typeid].coords);
     setCurrentBlock(newBlock);
-  
+
     // Generate a new next block
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
@@ -157,18 +152,15 @@ function App() {
       zInit: randomGroup.zInit,
     };
     setNextBlock(newNextBlock);
-  };  
+  };
   // INFO: tetrimino impact handling
   useEffect(() => {
     if (!isGame) {
       bgm.current.pause();
       clearInterval(fallInterval);
-    }
-
-    else if (isPause) {
+    } else if (isPause) {
       bgm.current.pause();
-    }
-    else {
+    } else {
       bgm.current.loop = true;
       bgm.current.volume = 0.3;
       bgm.current.play();
@@ -217,7 +209,7 @@ function App() {
   }, [isGame, isPause, gridLayers, currentBlock, nextBlock, position, blocks]);
 
   // INFO: Movement logic
-  
+
   const isValidPosition = (newBlocks) => {
     for (let { x, y, z } of newBlocks) {
       if (
@@ -258,56 +250,40 @@ function App() {
     }
     return [x, y, z];
   };
-}
+
   const PosSound = () => {
-    const moveSound = new Audio('/src/assets/change.mp3');
+    const moveSound = new Audio("/src/assets/change.mp3");
     moveSound.play();
   };
 
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
+
     event.preventDefault();
-    const curTetri = currentTetrimino;
-    const curPos = curTetri.current.position;
+
     let [x, y, z] = position;
     let newBlocks = blocks;
     switch (event.key) {
       case "a":
-        if (takeMinPosCube(currentTetrimino, 2).x + position[0] - 3 >= 0 && checkCollision(curTetri,gridLayers,position,-2,0) == 0) {
-          x -= 2
-          PosSound();
-        }
+        x -= 2;
         break;
       case "d":
-        if (takeMaxPosCube(currentTetrimino, 2).x + position[0] + 1 <= 10 && checkCollision(curTetri,gridLayers,position,2,0) == 0) {
-          x += 2;
-          PosSound();
-        }
+        x += 2;
         break;
       case "w":
-        if (takeMinPosCube(currentTetrimino, 1).z + position[2] - 3 >= 0 && checkCollision(curTetri,gridLayers,position,0,-2) == 0) {
-          z -= 2;
-          PosSound();
-        }
+        z -= 2;
         break;
       case "s":
-        if (
-          takeMaxPosCube(currentTetrimino, 1).z + position[2] + 1 <= 10 && checkCollision(curTetri,gridLayers,position,0,2) == 0) {
-          z += 2
-          PosSound();
-        }
+        z += 2;
         break;
       case "q":
         newBlocks = blocks.map((block) => [block[0], block[2], -block[1]]);
-        PosSound();
         break;
       case "e":
         newBlocks = blocks.map((block) => [block[2], block[1], block[0]]);
-        PosSound();
         break;
       case "r":
         newBlocks = blocks.map((block) => [block[1], -block[0], block[2]]);
-        PosSound();
         break;
       case " ":
         [x, y, z] = hardDrop();
@@ -325,7 +301,7 @@ function App() {
       setPosition([x, y, z]);
       setBlocks(newBlocks);
     }
-  }
+  };
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
@@ -375,7 +351,6 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [materialSettings]);
 
-
   return (
     <>
       <Header startPauseGame={startPauseGame} resetClick={resetClick} />
@@ -398,7 +373,13 @@ function App() {
           )}
           <Grid color={color} divisions={divisions} size={size} />
           {/* Fallen blocks */}
-          <FallenCubes gridLayers={gridLayers} isFullLayerAnimation={isFullLayerAnimation} setIsAnimating={setIsFullLayerAnimation} fullIndexes={fullIndexes} handleAnimationComplete={onAnimationComplete} />
+          <FallenCubes
+            gridLayers={gridLayers}
+            isFullLayerAnimation={isFullLayerAnimation}
+            setIsAnimating={setIsFullLayerAnimation}
+            fullIndexes={fullIndexes}
+            handleAnimationComplete={onAnimationComplete}
+          />
         </Canvas>
       </div>
       <Ui />
