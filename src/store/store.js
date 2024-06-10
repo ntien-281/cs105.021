@@ -8,7 +8,6 @@ import { immer } from "zustand/middleware/immer";
 // state = useCountStore(state => state.count)
 // increment = useCountStore(state => state.increment)
 
-
 export const useGameStore = create(
   immer((set) => ({
     isPause: false,
@@ -79,15 +78,32 @@ export const useGameStore = create(
       }),
     resetGame: () =>
       set((state) => {
-        state.isPause = false;
-        state.isGame = false;
-        state.gridLayers = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-        state.currentBlock = {
-            block: null,
-            color: "",
-        };
-        state.score = 0;
-        state.gameOver = false;
+          state.isPause = false;
+          state.isGame = false;
+          state.gridLayers = [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+          ];
+          state.currentBlock = {
+              block: null,
+              color: "",
+          };
+          state.score = 0;
+          state.gameOver = false;
       }),
-  }))
+    }))
 );

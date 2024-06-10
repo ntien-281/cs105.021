@@ -10,6 +10,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
 import GUI from "lil-gui";
+import { roughness } from "three/examples/jsm/nodes/Nodes.js";
+import { useSpring, animated } from "@react-spring/web";
 import { groupsOfBlocks } from "./utils/block";
 import FallenCubes from "./components/FallenCubes";
 
@@ -20,6 +22,7 @@ const color = "gray";
 
 function App() {
   const isGame = useGameStore((state) => state.isGame);
+  const isRemoved = useGameStore((state) => state.isRemoved);
   const setIsGame = useGameStore((state) => state.setIsGame);
   const gameOver = useGameStore((state) => state.gameOver);
   const setGameOver = useGameStore((state) => state.setGameOver);
@@ -39,9 +42,9 @@ function App() {
   const setMaterialSettings = useGameStore(
     (state) => state.setMaterialSettings
   );
-
   const currentTetrimino = useRef();
   const fallInterval = useRef();
+  const bgm = useRef(new Audio('/src/assets/BGM.mp3'));
 
   const [position, setPosition] = useState([0, 0, 0]); // Tetri position
   const [blocks, setBlocks] = useState([]); // Array of tetri's cubes' positions => for rotation (changing cubes position)
@@ -58,7 +61,7 @@ function App() {
       if (llIndex < 0 || llIndex >= gridLayers.length) {
         return false;
       }
-
+      // console.log(gridLayers);
       const lowerLayer = gridLayers[llIndex];
       // console.log("curr layer: ", llIndex, lowerLayer);
       for (let i = 0; i < lowerLayer.length; i++) {
@@ -115,6 +118,13 @@ function App() {
   }, [gridLayers]);
 
   useEffect(() => {
+    if (gameOver) {
+      const audio = new Audio('/src/assets/gameOver.mp3');
+      audio.play();
+    }
+  }, [gameOver]);  
+
+  useEffect(() => {
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
       typeid: randomGroup.typeid,
@@ -137,6 +147,8 @@ function App() {
     // TODO: revert dev changes
     setBlocks(groupsOfBlocks[nextBlock.typeid].coords);
     setCurrentBlock(newBlock);
+  
+    // Generate a new next block
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
       typeid: randomGroup.typeid,
@@ -145,14 +157,21 @@ function App() {
       zInit: randomGroup.zInit,
     };
     setNextBlock(newNextBlock);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  };
-
+  };  
   // INFO: tetrimino impact handling
   useEffect(() => {
     if (!isGame) {
-      // console.log("clearing interval");
+      bgm.current.pause();
       clearInterval(fallInterval);
+    }
+
+    else if (isPause) {
+      bgm.current.pause();
+    }
+    else {
+      bgm.current.loop = true;
+      bgm.current.volume = 0.3;
+      bgm.current.play();
     }
     if (isGame && !isPause && !gameOver) {
       fallInterval.current = setInterval(() => {
@@ -191,13 +210,14 @@ function App() {
     }
     return () => {
       if (fallInterval.current) {
-        // console.log("clearing interval");
         clearInterval(fallInterval.current);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGame, isPause, gridLayers, currentBlock, nextBlock, position, blocks]);
 
+  // INFO: Movement logic
+  
   const isValidPosition = (newBlocks) => {
     for (let { x, y, z } of newBlocks) {
       if (
@@ -218,7 +238,6 @@ function App() {
 
     return true;
   };
-
   const hardDrop = () => {
     if (gameOver || !position || !blocks || isPause) return;
 
@@ -239,35 +258,56 @@ function App() {
     }
     return [x, y, z];
   };
+}
+  const PosSound = () => {
+    const moveSound = new Audio('/src/assets/change.mp3');
+    moveSound.play();
+  };
 
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
-
     event.preventDefault();
-
+    const curTetri = currentTetrimino;
+    const curPos = curTetri.current.position;
     let [x, y, z] = position;
     let newBlocks = blocks;
     switch (event.key) {
       case "a":
-        x -= 2;
+        if (takeMinPosCube(currentTetrimino, 2).x + position[0] - 3 >= 0 && checkCollision(curTetri,gridLayers,position,-2,0) == 0) {
+          x -= 2
+          PosSound();
+        }
         break;
       case "d":
-        x += 2;
+        if (takeMaxPosCube(currentTetrimino, 2).x + position[0] + 1 <= 10 && checkCollision(curTetri,gridLayers,position,2,0) == 0) {
+          x += 2;
+          PosSound();
+        }
         break;
       case "w":
-        z -= 2;
+        if (takeMinPosCube(currentTetrimino, 1).z + position[2] - 3 >= 0 && checkCollision(curTetri,gridLayers,position,0,-2) == 0) {
+          z -= 2;
+          PosSound();
+        }
         break;
       case "s":
-        z += 2;
+        if (
+          takeMaxPosCube(currentTetrimino, 1).z + position[2] + 1 <= 10 && checkCollision(curTetri,gridLayers,position,0,2) == 0) {
+          z += 2
+          PosSound();
+        }
         break;
       case "q":
         newBlocks = blocks.map((block) => [block[0], block[2], -block[1]]);
+        PosSound();
         break;
       case "e":
         newBlocks = blocks.map((block) => [block[2], block[1], block[0]]);
+        PosSound();
         break;
       case "r":
         newBlocks = blocks.map((block) => [block[1], -block[0], block[2]]);
+        PosSound();
         break;
       case " ":
         [x, y, z] = hardDrop();
@@ -285,8 +325,7 @@ function App() {
       setPosition([x, y, z]);
       setBlocks(newBlocks);
     }
-  };
-
+  }
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
@@ -315,7 +354,6 @@ function App() {
     // console.log("reseted");
     resetGame();
   };
-
   // INFO: Material settings:
   useEffect(() => {
     let values = { ...materialSettings };
@@ -337,10 +375,10 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [materialSettings]);
 
+
   return (
     <>
       <Header startPauseGame={startPauseGame} resetClick={resetClick} />
-
       <div id="canvas-container">
         <Canvas
           camera={{ fov: 60, near: 0.1, far: 1000, position: [30, 40, 30] }}
@@ -358,7 +396,6 @@ function App() {
               blocks={blocks}
             />
           )}
-
           <Grid color={color} divisions={divisions} size={size} />
           {/* Fallen blocks */}
           <FallenCubes gridLayers={gridLayers} isFullLayerAnimation={isFullLayerAnimation} setIsAnimating={setIsFullLayerAnimation} fullIndexes={fullIndexes} handleAnimationComplete={onAnimationComplete} />
