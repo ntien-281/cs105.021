@@ -29,11 +29,11 @@ const Tetrimino = ({ controlRef, color, position, blocks}) => {
 
   return (
     <group position={position ? position :[0,0,0]} ref={controlRef}>
-      {blocks.map((position, index) => (
+      {blocks.map((pos, index) => (
       <Box
         key={index}
         args={[box_size, box_size, box_size]}
-        position={position}
+        position={pos}
         castShadow
         receiveShadow
       >
