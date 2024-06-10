@@ -36,9 +36,16 @@ export const groupsOfBlocks = [
         coords: [
             [1, 1, 1],
             [1, 1, 1 + box_size],
-            [1, 1 - box_size, 1 + box_size],
+            [1, 1 + box_size, 1 + box_size],
+            [1, 1 + box_size, 1 + 2 * box_size],
+        ],
+    },
+    {
+        coords: [
+            [1, 1, 1],
+            [1, 1, 1 + box_size],
             [1, 1, 1 + 2 * box_size],
-            [1, 1 - 2 * box_size, 1 + box_size],
+            [1, 1, 1 + 3 * box_size],
         ],
     },
 ];
