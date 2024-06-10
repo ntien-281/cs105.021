@@ -13,7 +13,6 @@ import GUI from "lil-gui";
 import { roughness } from "three/examples/jsm/nodes/Nodes.js";
 import { useSpring, animated } from "@react-spring/web";
 import { groupsOfBlocks } from "./utils/block";
-import SceneOver from "./components/SceneOver";
 
 // Game parameters
 const size = 12; // equal box size times 6
