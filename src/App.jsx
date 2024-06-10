@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
 import GUI from "lil-gui";
-import { roughness } from "three/examples/jsm/nodes/Nodes.js";
+import { groupsOfBlocks } from "./utils/block";
 
 // Game parameters
 const size = 12; // equal box size times 6
@@ -40,21 +40,22 @@ function App() {
   const currentTetrimino = useRef();
   const fallInterval = useRef();
 
-  const [position, setPosition] = useState([0, 0, 0]);
+  const [position, setPosition] = useState([0, 0, 0]); // Tetri position
+  const [blocks, setBlocks] = useState([]); // Array of tetri's cubes' positions => for rotation (changing cubes position)
 
   const gridImpact = useCallback(
     (blockPos, tetriPos) => {
-      const blockX = blockPos.x + position[0];
-      const blockY = blockPos.y + position[1];
-      const blockZ = blockPos.z + position[2];
+      const blockX = blockPos[0] + tetriPos[0];
+      const blockY = blockPos[1] + tetriPos[1];
+      const blockZ = blockPos[2] + tetriPos[2];
 
-      const llIndex = (blockY - 1) / 2 - 1;
-      if (llIndex < 0) {
+      const llIndex = (blockY - 1) / 2;
+      if (llIndex < 0 || llIndex >= gridLayers.length) {
         return false;
       }
 
       const lowerLayer = gridLayers[llIndex];
-      // console.log("lower layer: ", lowerLayer);
+      // console.log("curr layer: ", llIndex, lowerLayer);
       for (let i = 0; i < lowerLayer.length; i++) {
         const x = lowerLayer[i].position[0];
         const z = lowerLayer[i].position[1];
@@ -65,7 +66,7 @@ function App() {
       }
       return false;
     },
-    [gridLayers, position]
+    [gridLayers]
   );
 
   const handleFullLayers = useCallback(() => {
@@ -101,11 +102,12 @@ function App() {
   const generateNewBlock = () => {
     // INFO: foward next block to current block
     console.log("generating new block");
-    setPosition([nextBlock.xInit, 28, nextBlock.zInit]);
+    setPosition([nextBlock.xInit, 24, nextBlock.zInit]);
     const newBlock = {
       color: nextBlock.color,
       typeid: nextBlock.typeid,
     };
+    setBlocks(groupsOfBlocks[newBlock.typeid].coords);
     setCurrentBlock(newBlock);
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
@@ -129,13 +131,18 @@ function App() {
         const [x, y, z] = position;
         setPosition([x, y - 2, z]);
         const currTetri = currentTetrimino.current;
-        console.log("falling");
+        // console.log("falling");
         // INFO: Check if any block in tetrimino touches the floor
         // or another block in grid layers
         for (let i = 0; i < currTetri.children.length; i++) {
-          let currChildPos = currTetri.children[i].position;
-          let fallenLayer = (position[1] + currChildPos.y - 1) / 2;
-          if (fallenLayer == 0 || gridImpact(currChildPos, position)) {
+          let currChildPos = [
+            currTetri.children[i].position.x,
+            currTetri.children[i].position.y,
+            currTetri.children[i].position.z,
+          ];
+          let fallenLayer = (position[1] + currChildPos[1] - 1) / 2;
+          // console.log(fallenLayer);
+          if (fallenLayer == 0 || gridImpact(currChildPos, [x, y - 2, z])) {
             currTetri.children.forEach((child) => {
               let fallenLayer = (position[1] + child.position.y - 1) / 2;
               if (fallenLayer >= 0) {
@@ -144,7 +151,6 @@ function App() {
                     child.position.x + position[0],
                     child.position.z + position[2],
                   ],
-                  color: child.color,
                 };
                 addFallenBlock(block, fallenLayer);
               }
@@ -162,106 +168,71 @@ function App() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGame, isPause, gridLayers, currentBlock, nextBlock, position]);
+  }, [isGame, isPause, gridLayers, currentBlock, nextBlock, position, blocks]);
 
-  // INFO: Movement logic
-  const takeMaxPosCube = (currentTetrimino, type) => {
-    if (type == 1) {
-      let max = currentTetrimino.current.children[0].position.z;
-      for (let i = 0; i < currentTetrimino.current.children.length; i++) {
-        if (max < currentTetrimino.current.children[i].position.z) {
-          max = currentTetrimino.current.children[i].position.z;
-        }
+  const isValidPosition = (newBlocks) => {
+    for (let { x, y, z } of newBlocks) {
+      console.log(gridImpact([x - position[0], y - position[1], z - position[2]], position));
+      if (
+        x < 0 ||
+        x >= 12 ||
+        z < 0 ||
+        z >= 12 ||
+        y < 0 ||
+        y >= 28 ||
+        gridImpact([x - position[0], y - position[1], z - position[2]], position)
+      ) {
+        return false;
       }
-      return max;
-    } else {
-      let max = currentTetrimino.current.children[0].position.x;
-      for (let i = 0; i < currentTetrimino.current.children.length; i++) {
-        if (max < currentTetrimino.current.children[i].position.x) {
-          max = currentTetrimino.current.children[i].position.x;
-        }
-      }
-      return max;
     }
+
+    return true;
   };
 
-  // take min position of cube in blocks
-  const takeMinPosCube = (currentTetrimino, type) => {
-    if (type == 1) {
-      let min = currentTetrimino.current.children[0].position.z;
-      for (let i = 0; i < currentTetrimino.current.children.length; i++) {
-        if (min > currentTetrimino.current.children[i].position.z) {
-          min = currentTetrimino.current.children[i].position.z;
-        }
-      }
-      return min;
-    } else {
-      let min = currentTetrimino.current.children[0].position.x;
-      for (let i = 0; i < currentTetrimino.current.children.length; i++) {
-        if (min > currentTetrimino.current.children[i].position.x) {
-          min = currentTetrimino.current.children[i].position.x;
-        }
-      }
-      return min;
-    }
-  };
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
+
+    let [x, y, z] = position;
+    let newBlocks = blocks;
     switch (event.key) {
       case "a":
-        if (
-          takeMinPosCube(currentTetrimino, 2) +
-            position[0] -
-            3 >=
-          0
-        ) {
-          const [x, y, z] = position;
-          setPosition([x - 2, y, z]);
-          // console.log(position);
-        }
+        x -= 2;
         break;
       case "d":
-        if (
-          takeMaxPosCube(currentTetrimino, 2) +
-            position[0] +
-            1 <=
-          10
-        ) {
-          const [x, y, z] = position;
-          setPosition([x + 2, y, z]);
-          // console.log(position);
-        }
+        x += 2;
         break;
       case "w":
-        if (
-          takeMinPosCube(currentTetrimino, 1) +
-            position[2] -
-            3 >=
-          0
-        ) {
-          const [x, y, z] = position;
-          setPosition([x, y, z - 2]);
-          // console.log(position);
-        }
+        z -= 2;
         break;
       case "s":
-        if (
-          takeMaxPosCube(currentTetrimino, 1) +
-            position[2] +
-            1 <=
-          10
-        ) {
-          const [x, y, z] = position;
-          setPosition([x, y, z + 2]);
-          // console.log(position);
-        }
+        z += 2;
         break;
       case "q":
+        newBlocks = blocks.map((block) => [block[0], block[2], -block[1]]);
         break;
       case "e":
+        newBlocks = blocks.map((block) => [block[2], block[1], block[0]]);
+        break;
+      case "r":
+        newBlocks = blocks.map((block) => [block[1], -block[0], block[2]]);
+        break;
+      case " ":
+        // hard drop
         break;
       default:
         break;
+    }
+    const newBlocksPosition = newBlocks.map((block) => ({
+      x: block[0] + x,
+      y: block[1] + y,
+      z: block[2] + z,
+    }));
+    console.log("old blocks:", blocks);
+    console.log("new blocks:", newBlocks);
+    if (isValidPosition(newBlocksPosition)) {
+      // console.log("set new position");
+      setPosition([x, y, z]);
+      setBlocks(newBlocks);
     }
   };
 
@@ -328,12 +299,12 @@ function App() {
           <Lights />
 
           {/* Current tetrimino */}
-          {(isGame && !gameOver) && (
+          {isGame && !gameOver && (
             <Tetrimino
               controlRef={currentTetrimino}
               color={currentBlock.color}
               position={position}
-              typeid={currentBlock.typeid}
+              blocks={blocks}
             />
           )}
 

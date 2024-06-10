@@ -1,9 +1,10 @@
 // TODO UI overlay, bên trái là incoming block(các block này có animation), bên phải là hướng dẫn điều khiển + navigation + ...
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useGameStore } from "../store/store";
 import { Canvas } from "@react-three/fiber";
 import Tetrimino from "./Tetrimino";
 import AnimatedTetri from "./AnimatedTetri";
+import { groupsOfBlocks } from "../utils/block";
 
 const Ui = () => {
   const score = useGameStore((state) => state.score);
@@ -11,6 +12,8 @@ const Ui = () => {
   const gameOver = useGameStore((state) => state.gameOver);
   const resetGame = useGameStore((state) => state.resetGame);
   const setTextureUrl = useGameStore((state) => state.setTextureUrl);
+
+  const [blocks, setBlocks] = useState([])
 
   // INFO: Texture loader:
   const createImageUrl = (buffer, type) => {
@@ -40,6 +43,10 @@ const Ui = () => {
     };
   });
 
+  useEffect(() => {
+    setBlocks(groupsOfBlocks[nextBlock.typeid]?.coords);
+  }, [nextBlock])
+
   return (
     // Left UI: incoming blocks with animation
     <>
@@ -55,7 +62,7 @@ const Ui = () => {
               <Tetrimino
                 controlRef={null}
                 color={nextBlock.color}
-                typeid={nextBlock.typeid}
+                blocks={blocks}
               />
             </AnimatedTetri>
             <directionalLight
