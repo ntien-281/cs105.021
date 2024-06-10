@@ -6,8 +6,7 @@ import { TextureLoader } from "three";
 
 const box_size = 2;
 
-const Tetrimino = ({ controlRef, color, position, typeid}) => {
-  const blockGroup = groupsOfBlocks[typeid];
+const Tetrimino = ({ controlRef, color, position, blocks}) => {
   const materialSettings = useGameStore(state => state.materialSettings);
   const textureUrl = useGameStore(state => state.textureUrl);
   const material = useRef([]);
@@ -30,11 +29,11 @@ const Tetrimino = ({ controlRef, color, position, typeid}) => {
 
   return (
     <group position={position ? position :[0,0,0]} ref={controlRef}>
-      {blockGroup.coords.map((position, index) => (
+      {blocks.map((pos, index) => (
       <Box
         key={index}
         args={[box_size, box_size, box_size]}
-        position={position}
+        position={pos}
         castShadow
         receiveShadow
       >
