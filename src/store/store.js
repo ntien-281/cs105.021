@@ -39,6 +39,10 @@ export const useGameStore = create(
       set((state) => {
         state.materialSettings = value;
       }),
+    setScore: (value) =>
+      set((state) => {
+        state.score = value;
+      }),
     setTextureUrl: (value) =>
       set((state) => {
         state.textureUrl = value;
@@ -58,18 +62,11 @@ export const useGameStore = create(
         newLayers[layer] = [...oldLayer, block];
         state.gridLayers = newLayers;
       }),
-    removeFullLayers: () =>
+    removeFullLayer: (i) =>
       set((state) => {
         let newLayers = state.gridLayers;
-        
-        for (let i = 0; i < newLayers.length; i++) {
-          if (newLayers[i].length === 36) {
-            newLayers.splice(i, 1);
-            newLayers.push([]);
-            state.score += 10;
-          }
-        }
-
+        newLayers.splice(i, 1);
+        newLayers.push([]);
         state.gridLayers = newLayers;
       }),
     setCurrentBlock: (block) =>

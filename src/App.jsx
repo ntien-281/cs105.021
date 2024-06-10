@@ -11,6 +11,7 @@ import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
 import GUI from "lil-gui";
 import { groupsOfBlocks } from "./utils/block";
+import FallenCubes from "./components/FallenCubes";
 
 // Game parameters
 const size = 12; // equal box size times 6
@@ -29,9 +30,11 @@ function App() {
   const setCurrentBlock = useGameStore((state) => state.setCurrentBlock);
   const addFallenBlock = useGameStore((state) => state.addFallenBlock);
   const gridLayers = useGameStore((state) => state.gridLayers);
-  const removeFullLayers = useGameStore((state) => state.removeFullLayers);
+  const removeFullLayer = useGameStore((state) => state.removeFullLayer);
   const nextBlock = useGameStore((state) => state.nextBlock);
   const setNextBlock = useGameStore((state) => state.setNextBlock);
+  const score = useGameStore((state) => state.score);
+  const setScore = useGameStore((state) => state.setScore);
   const materialSettings = useGameStore((state) => state.materialSettings);
   const setMaterialSettings = useGameStore(
     (state) => state.setMaterialSettings
@@ -42,6 +45,8 @@ function App() {
 
   const [position, setPosition] = useState([0, 0, 0]); // Tetri position
   const [blocks, setBlocks] = useState([]); // Array of tetri's cubes' positions => for rotation (changing cubes position)
+  const [isFullLayerAnimation, setIsFullLayerAnimation] = useState(false);
+  const [fullIndexes, setFullIndexes] = useState([]);
 
   const gridImpact = useCallback(
     (blockPos, tetriPos) => {
@@ -69,11 +74,33 @@ function App() {
     [gridLayers]
   );
 
-  const handleFullLayers = useCallback(() => {
-    // TODO: animation here
+  const onAnimationComplete = (fullI) => {
+    fullI.forEach(i => {
+      console.log("removing full");
+      removeFullLayer(i);
+    });
+  }
 
-    removeFullLayers();
-  }, [removeFullLayers]);
+  const handleFullLayers = async () => {
+    // TODO: animation here
+    let fullI = [];
+    for (let i = 0; i < gridLayers.length; i++) {
+      if (gridLayers[i].length === 36) {
+        fullI = [...fullI, i];
+      }
+    }
+    if (fullI.length > 0) {
+      setIsFullLayerAnimation(true);
+      setFullIndexes(fullI);
+      setScore(score + 10);
+      // fullI.forEach(i => {
+      //   console.log("removing full");
+      //   removeFullLayer(i);
+      // }); => this is handled in onAnimationComplete
+    }
+    // setFullIndexes([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }
 
   useEffect(() => {
     for (let i = 12; i < gridLayers.length; i++) {
@@ -101,13 +128,14 @@ function App() {
 
   const generateNewBlock = () => {
     // INFO: foward next block to current block
-    console.log("generating new block");
+    // console.log("generating new block");
     setPosition([nextBlock.xInit, 24, nextBlock.zInit]);
     const newBlock = {
       color: nextBlock.color,
       typeid: nextBlock.typeid,
     };
-    setBlocks(groupsOfBlocks[newBlock.typeid].coords);
+    // TODO: revert dev changes
+    setBlocks(groupsOfBlocks[nextBlock.typeid].coords);
     setCurrentBlock(newBlock);
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
@@ -126,7 +154,7 @@ function App() {
       // console.log("clearing interval");
       clearInterval(fallInterval);
     }
-    if (isGame && !isPause) {
+    if (isGame && !isPause && !gameOver) {
       fallInterval.current = setInterval(() => {
         const [x, y, z] = position;
         setPosition([x, y - 2, z]);
@@ -163,7 +191,7 @@ function App() {
     }
     return () => {
       if (fallInterval.current) {
-        console.log("clearing interval");
+        // console.log("clearing interval");
         clearInterval(fallInterval.current);
       }
     };
@@ -179,7 +207,10 @@ function App() {
         z >= 12 ||
         y < 0 ||
         y >= 28 ||
-        gridImpact([x - position[0], y - position[1], z - position[2]], position)
+        gridImpact(
+          [x - position[0], y - position[1], z - position[2]],
+          position
+        )
       ) {
         return false;
       }
@@ -195,7 +226,11 @@ function App() {
     let [x, y, z] = position;
     while (breaker) {
       const newY = y - 2;
-      const predictedBlocksPosition = blocks.map(block => ({ x: block[0] + x, y: block[1] + newY, z: block[2] + z }));
+      const predictedBlocksPosition = blocks.map((block) => ({
+        x: block[0] + x,
+        y: block[1] + newY,
+        z: block[2] + z,
+      }));
       if (!isValidPosition(predictedBlocksPosition)) {
         breaker = false;
         break;
@@ -203,7 +238,7 @@ function App() {
       y = newY;
     }
     return [x, y, z];
-  }
+  };
 
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
@@ -264,20 +299,20 @@ function App() {
   const startPauseGame = (event) => {
     if (!isGame) {
       setIsGame();
-      console.log("started");
+      // console.log("started");
       generateNewBlock();
     } else {
       // game in progress, only pause
       if (isPause) {
-        console.log("resumed");
+        // console.log("resumed");
       } else {
-        console.log("paused");
+        // console.log("paused");
       }
       setIsPause();
     }
   };
   const resetClick = () => {
-    console.log("reseted");
+    // console.log("reseted");
     resetGame();
   };
 
@@ -326,27 +361,7 @@ function App() {
 
           <Grid color={color} divisions={divisions} size={size} />
           {/* Fallen blocks */}
-          {gridLayers.map((layer, index) => (
-            <group key={index}>
-              {layer.map((block, indexBlock) => {
-                return (
-                  <Box
-                    key={indexBlock}
-                    position={[
-                      block.position[0],
-                      index * 2 + 1,
-                      block.position[1],
-                    ]}
-                    args={[2, 2, 2]}
-                    receiveShadow
-                  >
-                    <Outlines thickness={1} screenspace={true} />
-                    <meshStandardMaterial color="gray" />
-                  </Box>
-                );
-              })}
-            </group>
-          ))}
+          <FallenCubes gridLayers={gridLayers} isFullLayerAnimation={isFullLayerAnimation} setIsAnimating={setIsFullLayerAnimation} fullIndexes={fullIndexes} handleAnimationComplete={onAnimationComplete} />
         </Canvas>
       </div>
       <Ui />
