@@ -172,7 +172,6 @@ function App() {
 
   const isValidPosition = (newBlocks) => {
     for (let { x, y, z } of newBlocks) {
-      console.log(gridImpact([x - position[0], y - position[1], z - position[2]], position));
       if (
         x < 0 ||
         x >= 12 ||
@@ -189,8 +188,27 @@ function App() {
     return true;
   };
 
+  const hardDrop = () => {
+    if (gameOver || !position || !blocks || isPause) return;
+
+    let breaker = true;
+    let [x, y, z] = position;
+    while (breaker) {
+      const newY = y - 2;
+      const predictedBlocksPosition = blocks.map(block => ({ x: block[0] + x, y: block[1] + newY, z: block[2] + z }));
+      if (!isValidPosition(predictedBlocksPosition)) {
+        breaker = false;
+        break;
+      }
+      y = newY;
+    }
+    return [x, y, z];
+  }
+
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
+
+    event.preventDefault();
 
     let [x, y, z] = position;
     let newBlocks = blocks;
@@ -217,7 +235,7 @@ function App() {
         newBlocks = blocks.map((block) => [block[1], -block[0], block[2]]);
         break;
       case " ":
-        // hard drop
+        [x, y, z] = hardDrop();
         break;
       default:
         break;
@@ -227,8 +245,6 @@ function App() {
       y: block[1] + y,
       z: block[2] + z,
     }));
-    console.log("old blocks:", blocks);
-    console.log("new blocks:", newBlocks);
     if (isValidPosition(newBlocksPosition)) {
       // console.log("set new position");
       setPosition([x, y, z]);
