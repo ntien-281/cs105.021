@@ -68,6 +68,10 @@ function App() {
     },
     [gridLayers, position]
   );
+  // const clearSound = () => {
+  //   const clear = new Audio('/src/assets/clear.mp3');
+  //   clear.play();
+  // };
   const handleFullLayers = useCallback(() => {
     // TODO: animation here
 
@@ -87,6 +91,13 @@ function App() {
   }, [gridLayers]);
 
   useEffect(() => {
+    if (gameOver) {
+      const audio = new Audio('/src/assets/gameOver.mp3');
+      audio.play();
+    }
+  }, [gameOver]);  
+
+  useEffect(() => {
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
       typeid: randomGroup.typeid,
@@ -100,7 +111,6 @@ function App() {
 
   const generateNewBlock = () => {
     // INFO: foward next block to current block
-    console.log("generating new block");
     setPosition([nextBlock.xInit, 28, nextBlock.zInit]);
     const newBlock = {
       color: nextBlock.color,
@@ -129,7 +139,6 @@ function App() {
         const [x, y, z] = position;
         setPosition([x, y - 2, z]);
         const currTetri = currentTetrimino.current;
-        console.log("falling");
         // INFO: Check if any block in tetrimino touches the floor
         // or another block in grid layers
         for (let i = 0; i < currTetri.children.length; i++) {
@@ -157,7 +166,6 @@ function App() {
     }
     return () => {
       if (fallInterval.current) {
-        console.log("clearing interval");
         clearInterval(fallInterval.current);
       }
     };
@@ -215,18 +223,6 @@ function App() {
       return min_posX;
     }
   };
-  const rotateTetri = (currTetri, type) => {
-    const curChild = currTetri.current.children;
-    console.log('Rotate');
-    if (type == 'x') {
-      for (let i = 0; i < curChild.length; i++) {
-        const vectorZ = curChild[i].position.z - curChild[0].position.z;
-        const vectorY = curChild[i].position.y - curChild[0].position.y;
-        curChild[i].position.z = curChild[0].position.z + vectorY;
-        curChild[i].position.y = curChild[0].position.y - vectorZ;
-      }
-    }
-  };
   const checkCollision = (curTetri,gridLayers,position,difX,difZ) => {
     const curChildren = curTetri.current.children;
     let check = 0;
@@ -264,6 +260,10 @@ function App() {
     }
     return check;
   }
+  const PosSound = () => {
+    const moveSound = new Audio('/src/assets/change.mp3');
+    moveSound.play();
+  };
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
     event.preventDefault();
@@ -275,18 +275,21 @@ function App() {
         if (takeMinPosCube(currentTetrimino, 2).x + position[0] - 3 >= 0 && checkCollision(curTetri,gridLayers,position,-2,0) == 0) {
           const [x, y, z] = position;
           setPosition([x - 2, y, z]);
+          PosSound();
         }
         break;
       case "d":
         if (takeMaxPosCube(currentTetrimino, 2).x + position[0] + 1 <= 10 && checkCollision(curTetri,gridLayers,position,2,0) == 0) {
           const [x, y, z] = position;
           setPosition([x + 2, y, z]);
+          PosSound();
         }
         break;
       case "w":
         if (takeMinPosCube(currentTetrimino, 1).z + position[2] - 3 >= 0 && checkCollision(curTetri,gridLayers,position,0,-2) == 0) {
           const [x, y, z] = position;
           setPosition([x, y, z - 2]);
+          PosSound();
         }
         break;
       case "s":
@@ -294,14 +297,8 @@ function App() {
           takeMaxPosCube(currentTetrimino, 1).z + position[2] + 1 <= 10 && checkCollision(curTetri,gridLayers,position,0,2) == 0) {
           const [x, y, z] = position;
           setPosition([x, y, z + 2]);
+          PosSound();
         }
-        break;
-      case "q":
-        rotateTetri(curTetri,'x')
-        break;
-      case "e":
-        break;
-      default:
         break;
     }
   };

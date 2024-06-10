@@ -138,3 +138,19 @@ button {
 .texture-input input[type="file"] {
     display: none;
 }
+
+@keyframes fadeOut {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+  }
+  
+  .layer-remove {
+    animation: fadeOut 0.5s forwards;
+  }
+  

@@ -80,6 +80,8 @@ export const useGameStore = create(
 
                 for (let i = 0; i < newLayers.length; i++) {
                     if (newLayers[i].length === 36) {
+                        const clear = new Audio("/src/assets/clear.mp3");
+                        clear.play();
                         newLayers.splice(i, 1);
                         newLayers.push([]);
                         state.score += 10;
