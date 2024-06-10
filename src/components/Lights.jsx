@@ -6,8 +6,6 @@ import { DirectionalLightHelper, PointLightHelper } from "three";
 const Lights = () => {
   const topLight = useRef(null);
   const sideLightRef = useRef(null);
-  useHelper(topLight, DirectionalLightHelper, 1, 'cyan');
-  useHelper(sideLightRef, DirectionalLightHelper, 1, 'cyan');
   
   useEffect(() => {
     if (topLight.current) {
