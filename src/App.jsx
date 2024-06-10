@@ -10,7 +10,6 @@ import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
 import GUI from "lil-gui";
 import { groupsOfBlocks } from "./utils/block";
-import FallenCubes from "./components/FallenCubes";
 
 // Game parameters
 const size = 12; // equal box size times 6
@@ -29,11 +28,9 @@ function App() {
   const setCurrentBlock = useGameStore((state) => state.setCurrentBlock);
   const addFallenBlock = useGameStore((state) => state.addFallenBlock);
   const gridLayers = useGameStore((state) => state.gridLayers);
-  const removeFullLayer = useGameStore((state) => state.removeFullLayer);
+  const removeFullLayers = useGameStore((state) => state.removeFullLayers);
   const nextBlock = useGameStore((state) => state.nextBlock);
   const setNextBlock = useGameStore((state) => state.setNextBlock);
-  const score = useGameStore((state) => state.score);
-  const setScore = useGameStore((state) => state.setScore);
   const materialSettings = useGameStore((state) => state.materialSettings);
   const setMaterialSettings = useGameStore(
     (state) => state.setMaterialSettings
@@ -44,8 +41,6 @@ function App() {
 
   const [position, setPosition] = useState([0, 0, 0]); // Tetri position
   const [blocks, setBlocks] = useState([]); // Array of tetri's cubes' positions => for rotation (changing cubes position)
-  const [isFullLayerAnimation, setIsFullLayerAnimation] = useState(false);
-  const [fullIndexes, setFullIndexes] = useState([]);
 
   const gridImpact = useCallback(
     (blockPos, tetriPos) => {
@@ -72,6 +67,7 @@ function App() {
     },
     [gridLayers]
   );
+
 
   const onAnimationComplete = (fullI) => {
     fullI.forEach((i) => {
@@ -100,6 +96,7 @@ function App() {
     // setFullIndexes([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   };
+
 
   useEffect(() => {
     for (let i = 12; i < gridLayers.length; i++) {
@@ -140,7 +137,7 @@ function App() {
       color: nextBlock.color,
       typeid: nextBlock.typeid,
     };
-    setBlocks(groupsOfBlocks[nextBlock.typeid].coords);
+    setBlocks(groupsOfBlocks[newBlock.typeid].coords);
     setCurrentBlock(newBlock);
 
     // Generate a new next block
@@ -165,7 +162,7 @@ function App() {
       bgm.current.volume = 0.3;
       bgm.current.play();
     }
-    if (isGame && !isPause && !gameOver) {
+    if (isGame && !isPause) {
       fallInterval.current = setInterval(() => {
         const [x, y, z] = position;
         setPosition([x, y - 2, z]);
@@ -219,10 +216,7 @@ function App() {
         z >= 12 ||
         y < 0 ||
         y >= 28 ||
-        gridImpact(
-          [x - position[0], y - position[1], z - position[2]],
-          position
-        )
+        gridImpact([x - position[0], y - position[1], z - position[2]], position)
       ) {
         return false;
       }
@@ -230,6 +224,30 @@ function App() {
 
     return true;
   };
+  const takeMaxPosCube = (currentTetrimino, type) => {
+    const curChild = currentTetrimino.current.children;
+    if (type == 1) {
+      let max = curChild[0].position.z;
+      let max_posZ = curChild[0].position
+      for (let i = 0; i < curChild.length; i++) {
+        if (max < curChild[i].position.z) {
+          max = curChild[i].position.z;
+          max_posZ = curChild[i].position;
+        }
+      }
+      return max_posZ;
+    } else {
+      let max =curChild[0].position.x;
+      let max_posX = curChild[0].position
+      for (let i = 0; i < curChild.length; i++) {
+        if (max < curChild[i].position.x) {
+          max = curChild[i].position.x;
+          max_posX = curChild[i].position
+        }
+      }
+      return max_posX;
+    }
+  }
   const hardDrop = () => {
     if (gameOver || !position || !blocks || isPause) return;
 
@@ -237,11 +255,7 @@ function App() {
     let [x, y, z] = position;
     while (breaker) {
       const newY = y - 2;
-      const predictedBlocksPosition = blocks.map((block) => ({
-        x: block[0] + x,
-        y: block[1] + newY,
-        z: block[2] + z,
-      }));
+      const predictedBlocksPosition = blocks.map(block => ({ x: block[0] + x, y: block[1] + newY, z: block[2] + z }));
       if (!isValidPosition(predictedBlocksPosition)) {
         breaker = false;
         break;
@@ -249,13 +263,37 @@ function App() {
       y = newY;
     }
     return [x, y, z];
+  }
+  // take min position of cube in blocks
+  const takeMinPosCube = (currentTetrimino, type) => {
+    const curChild = currentTetrimino.current.children;
+    if (type == 1) {
+      let min = curChild[0].position.z;
+      let min_posZ = curChild[0].position;
+      for (let i = 0; i < curChild.length; i++) {
+        if (min > curChild[i].position.z) {
+          min = curChild[i].position.z;
+          min_posZ = curChild[i].position;
+        }
+      }
+      return min_posZ;
+    } else {
+      let min = curChild[0].position.x;
+      let min_posX = curChild[0].position;
+      for (let i = 0; i < curChild.length; i++) {
+        if (min > curChild[i].position.x) {
+          min = curChild[i].position.x;
+          min_posX = curChild[i].position;
+        }
+      }
+      return min_posX;
+    }
   };
 
   const PosSound = () => {
     const moveSound = new Audio("/src/assets/change.mp3");
     moveSound.play();
   };
-
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current) return;
 
@@ -314,20 +352,20 @@ function App() {
   const startPauseGame = (event) => {
     if (!isGame) {
       setIsGame();
-      // console.log("started");
+      console.log("started");
       generateNewBlock();
     } else {
       // game in progress, only pause
       if (isPause) {
-        // console.log("resumed");
+        console.log("resumed");
       } else {
-        // console.log("paused");
+        console.log("paused");
       }
       setIsPause();
     }
   };
   const resetClick = () => {
-    // console.log("reseted");
+    console.log("reseted");
     resetGame();
   };
   // INFO: Material settings:
