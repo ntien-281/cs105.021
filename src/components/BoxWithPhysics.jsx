@@ -15,8 +15,9 @@ const BoxWithPhysics = React.forwardRef((props, ref) => {
 
   return (
     <RigidBody ref={rigidBody} includeInvisible>
-      <Box args={args} position={position} ref={ref}/>
-      <meshStandardMaterial color="red" args={args} position={position} />
+      <Box args={args} position={position} ref={ref}>
+        <meshStandardMaterial color="red" args={args} position={position} />
+      </Box>
     </RigidBody>
   );
 });

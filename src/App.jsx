@@ -262,8 +262,6 @@ function App() {
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current || isPause || !isGame || gameOver) return;
     event.preventDefault();
-    const curTetri = currentTetrimino;
-    const curPos = curTetri.current.position;
     let [x, y, z] = position;
     let newBlocks = blocks;
     switch (event.key) {

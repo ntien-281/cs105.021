@@ -3,7 +3,6 @@ import BoxWithPhysics from "./BoxWithPhysics";
 import { useFrame } from "@react-three/fiber";
 
 const GameOverGrid = ({ grid, collapseSpeed }) => {
-  const [isCollapsing, setIsCollapsing] = useState(true);
   const boxes = useRef([]);
 
   return (

@@ -22,7 +22,7 @@ const FallenCubes = ({
   // console.log(fullIndexes);
   useFrame((state, delta) => {
     if (isFullLayerAnimation) {
-      console.log("animating");
+      // console.log("animating");
       let doneAnimation = true;
       fullIndexes.forEach((i) => {
         layerRef.current[i].scale.x = Math.max(
