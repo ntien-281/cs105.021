@@ -42,6 +42,18 @@ function App() {
   const [position, setPosition] = useState([0, 0, 0]); // Tetri position
   const [blocks, setBlocks] = useState([]); // Array of tetri's cubes' positions => for rotation (changing cubes position)
 
+  //Sound effect
+  const bgm = useRef(new Audio("/src/assets/BGM.mp3"));
+  useEffect(() => {
+    if (gameOver) {
+      const audio = new Audio("/src/assets/gameOver.mp3");
+      audio.play();
+    }
+  }, [gameOver]);
+  const PosSound = () => {
+    const moveSound = new Audio("/src/assets/change.mp3");
+    moveSound.play();
+  };
   const gridImpact = useCallback(
     (blockPos, tetriPos) => {
       const blockX = blockPos[0] + tetriPos[0];
@@ -96,7 +108,6 @@ function App() {
     // setFullIndexes([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   };
-
 
   useEffect(() => {
     for (let i = 12; i < gridLayers.length; i++) {
@@ -155,6 +166,7 @@ function App() {
     if (!isGame) {
       bgm.current.pause();
       clearInterval(fallInterval);
+      bgm.current.pause();
     } else if (isPause) {
       bgm.current.pause();
     } else {
@@ -295,24 +307,28 @@ function App() {
     moveSound.play();
   };
   const handleKeyDown = (event) => {
-    if (!currentTetrimino.current) return;
-
+    if (!currentTetrimino.current || isPause || !isGame || gameOver) return;
     event.preventDefault();
-
+    const curTetri = currentTetrimino;
+    const curPos = curTetri.current.position;
     let [x, y, z] = position;
     let newBlocks = blocks;
     switch (event.key) {
       case "a":
         x -= 2;
+        PosSound();
         break;
       case "d":
         x += 2;
+        PosSound();
         break;
       case "w":
         z -= 2;
+        PosSound();
         break;
       case "s":
         z += 2;
+        PosSound();
         break;
       case "q":
         newBlocks = blocks.map((block) => [block[0], block[2], -block[1]]);
@@ -322,6 +338,7 @@ function App() {
         break;
       case "r":
         newBlocks = blocks.map((block) => [block[1], -block[0], block[2]]);
+
         break;
       case " ":
         [x, y, z] = hardDrop();
@@ -337,6 +354,7 @@ function App() {
     if (isValidPosition(newBlocksPosition)) {
       // console.log("set new position");
       setPosition([x, y, z]);
+      PosSound();
       setBlocks(newBlocks);
     }
   };

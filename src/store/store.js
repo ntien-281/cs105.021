@@ -1,4 +1,3 @@
-import { metalness } from "three/examples/jsm/nodes/Nodes.js";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -13,7 +12,6 @@ export const useGameStore = create(
         isPause: false,
         isGame: false,
         score: 0,
-        isRemoved: false,
         textureUrl: null,
         gridLayers: [
             [],
@@ -56,6 +54,10 @@ export const useGameStore = create(
             set((state) => {
                 state.materialSettings = value;
             }),
+        setScore: (value) =>
+            set((state) => {
+                state.score = value;
+            }),
         setTextureUrl: (value) =>
             set((state) => {
                 state.textureUrl = value;
@@ -75,21 +77,14 @@ export const useGameStore = create(
                 newLayers[layer] = [...oldLayer, block];
                 state.gridLayers = newLayers;
             }),
-        removeFullLayers: () =>
+        removeFullLayer: (i) =>
             set((state) => {
                 let newLayers = state.gridLayers;
-
-                for (let i = 0; i < newLayers.length; i++) {
-                    if (newLayers[i].length === 36) {
-                        const clear = new Audio("/src/assets/clear.mp3");
-                        clear.play();
-                        newLayers.splice(i, 1);
-                        newLayers.push([]);
-                        state.score += 10;
-                    }
-                }
+                newLayers.splice(i, 1);
+                newLayers.push([]);
+                const clear = new Audio("/src/assets/clear.mp3");
+                clear.play();
                 state.gridLayers = newLayers;
-                state.isRemoved = true;
             }),
         setCurrentBlock: (block) =>
             set((state) => {
@@ -127,6 +122,11 @@ export const useGameStore = create(
                 };
                 state.score = 0;
                 state.gameOver = false;
+                state.textureUrl = null;
+                state.materialSettings = {
+                    roughness: 0,
+                    metalness: 0,
+                };
             }),
     }))
 );

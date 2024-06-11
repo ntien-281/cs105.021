@@ -6,16 +6,17 @@ import { DirectionalLightHelper, PointLightHelper } from "three";
 const Lights = () => {
   const topLight = useRef(null);
   const sideLightRef = useRef(null);
-  useHelper(topLight, DirectionalLightHelper, 1, 'cyan');
-  useHelper(sideLightRef, DirectionalLightHelper, 1, 'cyan');
+  
+  useHelper(topLight, DirectionalLightHelper, 5, 'cyan');
+  // useHelper(sideLightRef, DirectionalLightHelper, 1, 'cyan');
   
   useEffect(() => {
     if (topLight.current) {
       topLight.current.target.position.set(6, 0, 6);
-      topLight.current.shadow.camera.left = -12;
-      topLight.current.shadow.camera.bottom = -12;
-      topLight.current.shadow.camera.top = 12;
-      topLight.current.shadow.camera.right = 12;
+      topLight.current.shadow.camera.left = -24;
+      topLight.current.shadow.camera.bottom = -24;
+      topLight.current.shadow.camera.top = 24;
+      topLight.current.shadow.camera.right = 24;
     }
     if (sideLightRef.current) {
       sideLightRef.current.position.set(30, 14, 6);
@@ -33,13 +34,13 @@ const Lights = () => {
       <ambientLight intensity={1.2} />
       <directionalLight
         position={[6, 30, 6]}
-        intensity={5}
+        intensity={20}
         castShadow
         color={"#fffff0"}
         ref={topLight}
       />
       <directionalLight 
-        intensity={10}
+        intensity={5}
         castShadow
         color={"#fffff0"}
         ref={sideLightRef}
