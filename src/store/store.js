@@ -82,7 +82,7 @@ export const useGameStore = create(
                 let newLayers = state.gridLayers;
                 newLayers.splice(i, 1);
                 newLayers.push([]);
-                const clear = new Audio("../assets/clear.mp3");
+                const clear = new Audio("/src/assets/clear.mp3");
                 clear.play();
                 state.gridLayers = newLayers;
             }),
