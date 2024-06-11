@@ -9,7 +9,7 @@ const AnimatedTetri = ({position, children}) => {
   const gameOver = useGameStore(state => state.gameOver);
   
   const pointRef = useRef(null);
-  useHelper(pointRef, PointLightHelper, 1, 'cyan');
+  // useHelper(pointRef, PointLightHelper, 1, 'cyan');
 
   useFrame((state, delta) => {
     if (tetriRef.current && !gameOver) {

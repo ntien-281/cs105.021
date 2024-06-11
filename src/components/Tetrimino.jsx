@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { Box, Outlines } from "@react-three/drei";
-import { groupsOfBlocks } from "../utils/block";
 import { useGameStore } from "../store/store";
 import { TextureLoader } from "three";
 

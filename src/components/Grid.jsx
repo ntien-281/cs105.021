@@ -1,6 +1,6 @@
-import { Plane } from '@react-three/drei'
-import React from 'react'
-import { DoubleSide } from 'three'
+import { Plane } from "@react-three/drei";
+import React from "react";
+import { DoubleSide } from "three";
 
 const Grid = ({size, divisions, color}) => {
   return (

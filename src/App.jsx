@@ -10,6 +10,7 @@ import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
 import GUI from "lil-gui";
 import { groupsOfBlocks } from "./utils/block";
+import FallenCubes from "./components/FallenCubes";
 
 // Game parameters
 const size = 12; // equal box size times 6
@@ -28,19 +29,22 @@ function App() {
   const setCurrentBlock = useGameStore((state) => state.setCurrentBlock);
   const addFallenBlock = useGameStore((state) => state.addFallenBlock);
   const gridLayers = useGameStore((state) => state.gridLayers);
-  const removeFullLayers = useGameStore((state) => state.removeFullLayers);
+  const removeFullLayer = useGameStore((state) => state.removeFullLayer);
   const nextBlock = useGameStore((state) => state.nextBlock);
   const setNextBlock = useGameStore((state) => state.setNextBlock);
   const materialSettings = useGameStore((state) => state.materialSettings);
   const setMaterialSettings = useGameStore(
     (state) => state.setMaterialSettings
   );
+  const score = useGameStore(state => state.score);
+  const setScore = useGameStore(state => state.setScore);
   const currentTetrimino = useRef();
   const fallInterval = useRef();
-  const bgm = useRef(new Audio("/src/assets/BGM.mp3"));
 
   const [position, setPosition] = useState([0, 0, 0]); // Tetri position
   const [blocks, setBlocks] = useState([]); // Array of tetri's cubes' positions => for rotation (changing cubes position)
+  const [isFullLayerAnimation, setIsFullLayerAnimation] = useState(false);
+  const [fullIndexes, setFullIndexes] = useState([])
 
   //Sound effect
   const bgm = useRef(new Audio("/src/assets/BGM.mp3"));
@@ -174,7 +178,7 @@ function App() {
       bgm.current.volume = 0.3;
       bgm.current.play();
     }
-    if (isGame && !isPause) {
+    if (isGame && !isPause && !gameOver) {
       fallInterval.current = setInterval(() => {
         const [x, y, z] = position;
         setPosition([x, y - 2, z]);
@@ -276,41 +280,10 @@ function App() {
     }
     return [x, y, z];
   }
-  // take min position of cube in blocks
-  const takeMinPosCube = (currentTetrimino, type) => {
-    const curChild = currentTetrimino.current.children;
-    if (type == 1) {
-      let min = curChild[0].position.z;
-      let min_posZ = curChild[0].position;
-      for (let i = 0; i < curChild.length; i++) {
-        if (min > curChild[i].position.z) {
-          min = curChild[i].position.z;
-          min_posZ = curChild[i].position;
-        }
-      }
-      return min_posZ;
-    } else {
-      let min = curChild[0].position.x;
-      let min_posX = curChild[0].position;
-      for (let i = 0; i < curChild.length; i++) {
-        if (min > curChild[i].position.x) {
-          min = curChild[i].position.x;
-          min_posX = curChild[i].position;
-        }
-      }
-      return min_posX;
-    }
-  };
 
-  const PosSound = () => {
-    const moveSound = new Audio("/src/assets/change.mp3");
-    moveSound.play();
-  };
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current || isPause || !isGame || gameOver) return;
     event.preventDefault();
-    const curTetri = currentTetrimino;
-    const curPos = curTetri.current.position;
     let [x, y, z] = position;
     let newBlocks = blocks;
     switch (event.key) {

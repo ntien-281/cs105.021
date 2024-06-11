@@ -7,7 +7,7 @@ const Lights = () => {
   const topLight = useRef(null);
   const sideLightRef = useRef(null);
   
-  useHelper(topLight, DirectionalLightHelper, 5, 'cyan');
+  useHelper(topLight, DirectionalLightHelper, 2, 'cyan');
   // useHelper(sideLightRef, DirectionalLightHelper, 1, 'cyan');
   
   useEffect(() => {
@@ -34,13 +34,13 @@ const Lights = () => {
       <ambientLight intensity={1.2} />
       <directionalLight
         position={[6, 30, 6]}
-        intensity={20}
+        intensity={10}
         castShadow
         color={"#fffff0"}
         ref={topLight}
       />
       <directionalLight 
-        intensity={5}
+        intensity={3}
         castShadow
         color={"#fffff0"}
         ref={sideLightRef}

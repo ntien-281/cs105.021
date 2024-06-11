@@ -89,7 +89,7 @@ const Ui = () => {
       <div className="instructions-label">
         <div className="texture-input">
           <label className="texture-input-btn">
-            Upload texture
+            Tải texture
             <input type="file" onChange={(e) => getTextureFile(e)} />
           </label>
         </div>
