@@ -11,10 +11,12 @@
 - React
 - ThreeJS
 - React-three/fiber
+- React-three/drei
+- Zustand
+- Lil-GUI
 
 ### Hướng dẫn chạy
-```
-Với `yarn`:
+Với `yarn` package manager:
 ```
 yarn
 yarn dev

@@ -47,15 +47,15 @@ function App() {
   const [fullIndexes, setFullIndexes] = useState([])
 
   //Sound effect
-  const bgm = useRef(new Audio("/src/assets/BGM.mp3"));
+  const bgm = useRef(new Audio("/assets/BGM.mp3"));
   useEffect(() => {
     if (gameOver) {
-      const audio = new Audio("/src/assets/gameOver.mp3");
+      const audio = new Audio("/assets/gameOver.mp3");
       audio.play();
     }
   }, [gameOver]);
   const PosSound = () => {
-    const moveSound = new Audio("/src/assets/change.mp3");
+    const moveSound = new Audio("/assets/change.mp3");
     moveSound.play();
   };
   const gridImpact = useCallback(
@@ -127,7 +127,7 @@ function App() {
 
   useEffect(() => {
     if (gameOver) {
-      const audio = new Audio("/src/assets/gameOver.mp3");
+      const audio = new Audio("/assets/gameOver.mp3");
       audio.play();
     }
   }, [gameOver]);
