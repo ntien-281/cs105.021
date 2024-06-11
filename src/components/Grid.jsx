@@ -19,7 +19,7 @@ const Grid = ({ size, divisions, color }) => {
           position={[size / 2, 0, size / 2]}
           receiveShadow
         >
-          <meshStandardMaterial shadowSide={DoubleSide} />
+          <meshStandardMaterial shadowSide={DoubleSide} receiveShadow />
         </Plane>
         <gridHelper
           args={[size, divisions, color]}

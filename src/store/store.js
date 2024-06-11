@@ -1,4 +1,3 @@
-import { metalness } from "three/examples/jsm/nodes/Nodes.js";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -123,6 +122,11 @@ export const useGameStore = create(
                 };
                 state.score = 0;
                 state.gameOver = false;
+                state.textureUrl = null;
+                state.materialSettings = {
+                    roughness: 0,
+                    metalness: 0,
+                };
             }),
     }))
 );
