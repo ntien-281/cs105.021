@@ -5,7 +5,6 @@ import Header from "./components/Header";
 import Lights from "./components/Lights";
 import CameraController from "./components/CameraController";
 import { useGameStore } from "./store/store";
-import { Box, Outlines } from "@react-three/drei";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { generateRandomGroup } from "./utils/block";
 import Tetrimino from "./components/Tetrimino";
@@ -33,20 +32,19 @@ function App() {
   const removeFullLayer = useGameStore((state) => state.removeFullLayer);
   const nextBlock = useGameStore((state) => state.nextBlock);
   const setNextBlock = useGameStore((state) => state.setNextBlock);
-  const score = useGameStore((state) => state.score);
-  const setScore = useGameStore((state) => state.setScore);
   const materialSettings = useGameStore((state) => state.materialSettings);
   const setMaterialSettings = useGameStore(
     (state) => state.setMaterialSettings
   );
-
+  const score = useGameStore(state => state.score);
+  const setScore = useGameStore(state => state.setScore);
   const currentTetrimino = useRef();
   const fallInterval = useRef();
 
   const [position, setPosition] = useState([0, 0, 0]); // Tetri position
   const [blocks, setBlocks] = useState([]); // Array of tetri's cubes' positions => for rotation (changing cubes position)
   const [isFullLayerAnimation, setIsFullLayerAnimation] = useState(false);
-  const [fullIndexes, setFullIndexes] = useState([]);
+  const [fullIndexes, setFullIndexes] = useState([])
 
   //Sound effect
   const bgm = useRef(new Audio("/src/assets/BGM.mp3"));
@@ -70,7 +68,7 @@ function App() {
       if (llIndex < 0 || llIndex >= gridLayers.length) {
         return false;
       }
-
+      // console.log(gridLayers);
       const lowerLayer = gridLayers[llIndex];
       // console.log("curr layer: ", llIndex, lowerLayer);
       for (let i = 0; i < lowerLayer.length; i++) {
@@ -85,6 +83,7 @@ function App() {
     },
     [gridLayers]
   );
+
 
   const onAnimationComplete = (fullI) => {
     fullI.forEach((i) => {
@@ -127,6 +126,13 @@ function App() {
   }, [gridLayers]);
 
   useEffect(() => {
+    if (gameOver) {
+      const audio = new Audio("/src/assets/gameOver.mp3");
+      audio.play();
+    }
+  }, [gameOver]);
+
+  useEffect(() => {
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
       typeid: randomGroup.typeid,
@@ -146,9 +152,10 @@ function App() {
       color: nextBlock.color,
       typeid: nextBlock.typeid,
     };
-    // TODO: revert dev changes
-    setBlocks(groupsOfBlocks[nextBlock.typeid].coords);
+    setBlocks(groupsOfBlocks[newBlock.typeid].coords);
     setCurrentBlock(newBlock);
+
+    // Generate a new next block
     const randomGroup = generateRandomGroup();
     const newNextBlock = {
       typeid: randomGroup.typeid,
@@ -157,13 +164,11 @@ function App() {
       zInit: randomGroup.zInit,
     };
     setNextBlock(newNextBlock);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
-
   // INFO: tetrimino impact handling
   useEffect(() => {
     if (!isGame) {
-      // console.log("clearing interval");
+      bgm.current.pause();
       clearInterval(fallInterval);
       bgm.current.pause();
     } else if (isPause) {
@@ -210,12 +215,13 @@ function App() {
     }
     return () => {
       if (fallInterval.current) {
-        // console.log("clearing interval");
         clearInterval(fallInterval.current);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGame, isPause, gridLayers, currentBlock, nextBlock, position, blocks]);
+
+  // INFO: Movement logic
 
   const isValidPosition = (newBlocks) => {
     for (let { x, y, z } of newBlocks) {
@@ -226,10 +232,7 @@ function App() {
         z >= 12 ||
         y < 0 ||
         y >= 28 ||
-        gridImpact(
-          [x - position[0], y - position[1], z - position[2]],
-          position
-        )
+        gridImpact([x - position[0], y - position[1], z - position[2]], position)
       ) {
         return false;
       }
@@ -237,7 +240,30 @@ function App() {
 
     return true;
   };
-
+  const takeMaxPosCube = (currentTetrimino, type) => {
+    const curChild = currentTetrimino.current.children;
+    if (type == 1) {
+      let max = curChild[0].position.z;
+      let max_posZ = curChild[0].position
+      for (let i = 0; i < curChild.length; i++) {
+        if (max < curChild[i].position.z) {
+          max = curChild[i].position.z;
+          max_posZ = curChild[i].position;
+        }
+      }
+      return max_posZ;
+    } else {
+      let max =curChild[0].position.x;
+      let max_posX = curChild[0].position
+      for (let i = 0; i < curChild.length; i++) {
+        if (max < curChild[i].position.x) {
+          max = curChild[i].position.x;
+          max_posX = curChild[i].position
+        }
+      }
+      return max_posX;
+    }
+  }
   const hardDrop = () => {
     if (gameOver || !position || !blocks || isPause) return;
 
@@ -245,11 +271,7 @@ function App() {
     let [x, y, z] = position;
     while (breaker) {
       const newY = y - 2;
-      const predictedBlocksPosition = blocks.map((block) => ({
-        x: block[0] + x,
-        y: block[1] + newY,
-        z: block[2] + z,
-      }));
+      const predictedBlocksPosition = blocks.map(block => ({ x: block[0] + x, y: block[1] + newY, z: block[2] + z }));
       if (!isValidPosition(predictedBlocksPosition)) {
         breaker = false;
         break;
@@ -257,7 +279,7 @@ function App() {
       y = newY;
     }
     return [x, y, z];
-  };
+  }
 
   const handleKeyDown = (event) => {
     if (!currentTetrimino.current || isPause || !isGame || gameOver) return;
@@ -309,7 +331,6 @@ function App() {
       setBlocks(newBlocks);
     }
   };
-
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => {
@@ -322,23 +343,22 @@ function App() {
   const startPauseGame = (event) => {
     if (!isGame) {
       setIsGame();
-      // console.log("started");
+      console.log("started");
       generateNewBlock();
     } else {
       // game in progress, only pause
       if (isPause) {
-        // console.log("resumed");
+        console.log("resumed");
       } else {
-        // console.log("paused");
+        console.log("paused");
       }
       setIsPause();
     }
   };
   const resetClick = () => {
-    // console.log("reseted");
+    console.log("reseted");
     resetGame();
   };
-
   // INFO: Material settings:
   useEffect(() => {
     let values = { ...materialSettings };
@@ -363,7 +383,6 @@ function App() {
   return (
     <>
       <Header startPauseGame={startPauseGame} resetClick={resetClick} />
-
       <div id="canvas-container">
         <Canvas
           camera={{ fov: 60, near: 0.1, far: 1000, position: [30, 40, 30] }}
@@ -381,7 +400,6 @@ function App() {
               blocks={blocks}
             />
           )}
-
           <Grid color={color} divisions={divisions} size={size} />
           {/* Fallen blocks */}
           <FallenCubes
